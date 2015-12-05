@@ -112,9 +112,159 @@ probability of virus infection?
   In total there were six blocks. In each block there were five rows, each of which contained one variety of wheat. In each row there were six plots, each containing a unique combination of nitrogen application time and inoculation status (inoculated or not). In total there were 180 plots.  From each plot, 30 leaves were collected haphazardly and their infection statuses were recorded. 
 
 \section{Simulation}
+<<toothyblowjob>>=
+## These functions will be used thoughout. 
+logit <- function(x){return(log(x/(1-x)))}
+expit <- function(x){return(exp(x)/(1+exp(x)))}
+
+## Here, we set up a data frame to store our data: factors of each 
+##   variable for each plot.
+design <- data.frame('block' = as.numeric(gl(6, 30)),
+                     'row' = as.numeric(gl(30, 6)),
+                     'plot' = 1:180,
+                     'variety' = numeric(180),
+                     'inoc' = numeric(180),
+                     'nitrogen' = numeric(180))
+set.seed(6823)
+## Each column is a permutation of variety indices
+permute.v <- matrix(replicate(6, sample(5, 5, replace = FALSE)), ncol = 6)
+for(i in 1:180){
+  design$variety[i] <- permute.v[(design$row[i]-1)%%5+1, design$block[i]]
+}
+ni <- matrix(c(1, 1, 1, 2, 2, 2, 1:3, 1:3), ncol = 2)
+## Each column is a permutation of inoc:nitrogen indices
+permute.ni <- matrix(replicate(30, sample(6, 6, replace = FALSE)), ncol = 30)
+for(i in 1:30){
+  design[((i-1)*6+1):(i*6), c('inoc', 'nitrogen')] <- ni[permute.ni[,i],]
+}
+
+
+
+#### Start the process of simulating data.
+## For the binomial setting we have
+##    y ~ Bin(30,pi) where
+##    logit(pi) = Xb and 
+##    X is the model matrix and b is a vector of coefficients 
+
+# Determine a value of mu to be used for the intercept (first row of b vector).
+#   We found that logit(0.05) is approximately -3.
+mu <- -3 
+
+# It is good practice to set seed when simulating data as it will be 
+#   reproducible.
+set.seed(93)
+
+## We can set values for the main coefficients or use random draws.
+##   These are also rows of the b vector.
+# There are six blocks.
+b.eff <- rnorm(6,0,0.01)
+# There are five varieties.
+v.eff <- rnorm(5,0,0.3)
+# There are three nitrogen levels.
+n.eff <- sort(rnorm(3,0,0.4))
+# There are two inoculation levels.
+i.eff <- c(-0.5,0.5)
+
+## We can do the same for all the two-way interactions.
+##   These are more rows of the b vector.
+# There are 30 combinations of block and variety.
+bv.eff <- rnorm(30,0,0.00001)
+# There are 18 combinations of block and nitrogen.
+bn.eff <- rnorm(18,0,0.00001)
+# There are 12 combinations of block and inoculation.
+bi.eff <- rnorm(12,0,0.00001)
+# There are 15 combinations of variety and nitrogen.
+vn.eff <- rnorm(15,0,0.01)
+# There are 10 combinations of variety and inoculation.
+vi.eff <- rnorm(10,0,0.03)
+# There are 6 combinations of nitrogen and inoculation.
+ni.eff <- rnorm(6,0,0.03)
+
+## We can also establish effects for three-way interactions.
+##   These are also in the b vector.
+# There are 90 combinations of block, variety, and nitrogen.
+bvn.eff <- rnorm(90,0,0.00001)
+# There are 60 combinations of block, variety, and inoculation.
+bvi.eff <- rnorm(60,0,0.00001)
+# There are 36 combinations of block, nitrogen, and inoculation.
+bni.eff <- rnorm(36,0,0.00001)
+# There are 30 combinations of variety, nitrogen, and inoculation.
+vni.eff <- rnorm(30,0,0.001)
+
+## It was not of interest to include a four-way interaction.
+
+
+
+#### We can now update our "design" matrix with the levels of each 
+####   interaction. 
+# head(design) # reminder of the layout of design
+## Find the levels for each two-way interaction assigned to a plot.
+bv.int <- as.numeric(interaction(design[,1],design[,4]))
+bn.int <- as.numeric(interaction(design[,1],design[,6]))
+bi.int <- as.numeric(interaction(design[,1],design[,5]))
+vn.int <- as.numeric(interaction(design[,4],design[,6]))
+vi.int <- as.numeric(interaction(design[,4],design[,5]))
+ni.int <- as.numeric(interaction(design[,6],design[,5]))
+## Find the levels for each three-way interaction assigned to a plot.
+bvn.int <- as.numeric(interaction(design[,1],design[,4],design[,6]))
+bvi.int <- as.numeric(interaction(design[,4],design[,6]))
+bni.int <- as.numeric(interaction(design[,4],design[,5]))
+vni.int <- as.numeric(interaction(design[,6],design[,5]))
+
+## Once the levels have been established for each interaction (of 
+##   each plot) we can include them as columns in our data set. 
+##   We have opted to call the data set 'od' for original data.
+od <- data.frame(
+  "blk" = factor(design[,1]),
+  "vty" = factor(design[,4]),
+  "nit" = factor(design[,6]),
+  "ino" = factor(design[,5]),
+  "bv.int" = factor(bv.int),
+  "bn.int" = factor(bn.int),
+  "bi.int" = factor(bi.int),
+  "vn.int" = factor(vn.int),
+  "vi.int" = factor(vi.int),
+  "ni.int" = factor(ni.int),
+  "bvn.int" = factor(bvn.int),
+  "bvi.int" = factor(bvi.int),
+  "bni.int" = factor(bni.int),
+  "vni.int" = factor(vni.int)
+)
+
+## Using the levels of each factor for a plot, we can find the probabilities
+##   associated with the simulated data.
+# We can start on the logit scale: logit(pi) = Xb.
+logit.pi.vec <- mu + b.eff[od[,1]] + v.eff[od[,2]] + n.eff[od[,3]] + 
+  i.eff[od[,4]] + bv.eff[od[,5]] + bn.eff[od[,6]] + bi.eff[od[,7]] +
+  vn.eff[od[,8]] + vi.eff[od[,9]] + ni.eff[od[,10]] + bvn.eff[od[,11]] + 
+  bvi.eff[od[,12]] + bni.eff[od[,13]] + vni.eff[od[,14]]
+
+# Now, transform those back to the pi (probability) scale.
+pi.vec <- apply(cbind(logit.pi.vec), 1, expit) # pi = expit(X * beta)
+
+# We can use the probabilities to generate y's: y_i ~ Bin(30,pi_i). These will 
+#   be the counts of infected leaves for a given plot.
+set.seed(324)
+y.vec <- apply(cbind(pi.vec), 1, function(p) rbinom(1,30,p)) 
+
+## Lastly, we can attach the counts of infected leaves and uninfected leaves  
+##   for each plot to our data set.
+od$"infected" <- y.vec
+od$"uninfected" <- 30 - y.vec
+
+## If desired, it is possible to write the data set to a csv or table for 
+##   future use.
+# write.csv(od,"od.csv",row.names = FALSE)
+@
+
+
 \section{Bayesian Background}
 \subsection{Why Choose Bayesian}
+Don't ask Kenny.
+
 \section{Posterior Inferences}
+
+
 \section{Posterior Predictive Check}
 
 Ideas:
