@@ -24,14 +24,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%put%words%in%circle%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\usepackage{tikz}
-\usetikzlibrary{shapes.misc,shadows}
-\usetikzlibrary{arrows}
-\usetikzlibrary{shapes}
-\newcommand{\mymk}[1]{%
-  \tikz[baseline=(char.base)]\node[anchor=south west, 
-    draw = blue, rectangle, rounded corners, inner sep=2pt,
-    minimum size=7mm, text height=2mm](char){\ensuremath{#1}} ;}
+% \usepackage{tikz}
+% \usetikzlibrary{shapes.misc,shadows}
+% \usetikzlibrary{arrows}
+% \usetikzlibrary{shapes}
+% \newcommand{\mymk}[1]{%
+%   \tikz[baseline=(char.base)]\node[anchor=south west, 
+%     draw = blue, rectangle, rounded corners, inner sep=2pt,
+%     minimum size=7mm, text height=2mm](char){\ensuremath{#1}} ;}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
@@ -86,15 +86,18 @@ require(xtable)
 # require(geoR) # for scaled inverse chi squared
 # require(rstan)
 
-### set working directory
+### set working directory - Doug
 setwd("C:/Users/dsand_000/Desktop/Stats/S532/gitProj/Bayes-Group/report")
 @
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 \section{Introduction}
-Bayesian methods are not used commonly in consulting seminars.  Here is an illustration of ...
+Bayseian inference is becoming a popular topic as of late; such is the case for fields like Ecology. However, the practice of Bayesian data analyis is rarely utilized in the Consulting Seminar for clients because few are familiar with the methodology. We hope to illustrate that, while Bayesian data analysis may be less familiar than its likelihood or frequentist counterparts, it can provide results when other approaches do not. Additionally, it is our goal to provide easy to understand implementations of Bayesian inference.
+
 \section{Objectives}
+
+
 \section{Design}
 \section{Simulation}
 \section{Bayesian Background}
@@ -115,6 +118,5 @@ Ideas:
 \section{Conclusion}
 
 
-boogers
 
 \end{document}
