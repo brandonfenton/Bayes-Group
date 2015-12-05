@@ -61,15 +61,15 @@ for(i in 1:30){
 
 
 # Let's simulate some stuff
-mu <- -2.2 # Intercept: Because logit(0.1) is about -2.2
+mu <- -3 # Intercept: Because logit(0.1) is about -2.2
 
 set.seed(93)
 # six blocks
 b.eff <- rnorm(6,0,0.01)
 # five varieties
-v.eff <- rnorm(5,0,0.05)
+v.eff <- rnorm(5,0,0.3)
 # three nitrogen levels
-n.eff <- sort(rnorm(3,0,0.2))
+n.eff <- sort(rnorm(3,0,0.4))
 # two inoculation levels
 i.eff <- c(-0.5,0.5)
 #### kenny's dumb interaction effects
@@ -303,7 +303,7 @@ your_sister <- sampling(stan_herpes, chains = 4, iter = 500, data = weiner_logs,
 # t4 <- read_stan_csv("trial_4.csv", col_major = TRUE)
 trial <- read_stan_csv(c("trial5000_1.csv","trial5000_2.csv","trial5000_3.csv","trial5000_4.csv"), col_major=TRUE)
 # plot(your_sister, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="median")
-plot(trial, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="median")
+plot(trial, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="mean")
 
 
 
