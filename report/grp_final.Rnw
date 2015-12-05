@@ -1,0 +1,120 @@
+\documentclass[11pt]{article}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% packages
+\usepackage{graphicx} % for pictures
+%\usepackage{fancyhdr} % for headers
+\usepackage{verbatim} % displaying r code
+%\usepackage{fancyvrb}
+\usepackage{setspace} % vspace and hspace
+%\usepackage{listings}
+\usepackage{enumitem} % for [label=]
+\usepackage{amsmath}  % math symbols and such
+%\usepackage{lastpage} % for page numerbering
+\usepackage{color}
+\usepackage{multirow}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% margins
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{9in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\topmargin}{-1.5cm}
+% \def\fs{\footnotesize}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%put%words%in%circle%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{tikz}
+\usetikzlibrary{shapes.misc,shadows}
+\usetikzlibrary{arrows}
+\usetikzlibrary{shapes}
+\newcommand{\mymk}[1]{%
+  \tikz[baseline=(char.base)]\node[anchor=south west, 
+    draw = blue, rectangle, rounded corners, inner sep=2pt,
+    minimum size=7mm, text height=2mm](char){\ensuremath{#1}} ;}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% title page
+\title{Team BadAss}
+\author{K. Flagg, B. Fenton, \& D. Anderson}
+\date{}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketitle
+% \tableofcontents
+% \newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% R code options
+<<setup, include=FALSE, cache=FALSE>>=
+### set default values for code chunks
+opts_chunk$set(
+  echo=FALSE,
+  message=F,
+  warning=F,
+  fig.width=9, 
+  fig.height=6, 
+  out.width='\\linewidth', 
+  dev='pdf', 
+  concordance=TRUE, 
+  results='asis',
+  size = 'small'
+)
+
+### other defaults
+options(
+  replace.assign=TRUE,
+  width=72, 
+  digits = 3, 
+  max.print="72",
+  show.signif.stars = FALSE
+)
+
+### load in necessary packages
+# require(nlme)
+# require(lme4)
+require(xtable)
+# require(ggplot2)
+# require(lattice)
+# require(rjags)
+# require(R2jags)
+# require(mcmcplots)
+# require(LearnBayes) 
+# library(mvtnorm)
+# library(coda)
+# require(geoR) # for scaled inverse chi squared
+# require(rstan)
+
+### set working directory
+setwd("C:/Users/dsand_000/Desktop/Stats/S532/gitProj/Bayes-Group/report")
+@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Introduction}
+Bayesian methods are not used commonly in consulting seminars.  Here is an illustration of ...
+\section{Objectives}
+\section{Design}
+\section{Simulation}
+\section{Bayesian Background}
+\subsection{Why Choose Bayesian}
+\section{Posterior Inferences}
+\section{Posterior Predictive Check}
+
+Ideas:
+\begin{itemize}
+\item counting number of zeros\\
+\item counting number of plots with a higher count than the maximum in the data\\
+\end{itemize}
+
+\section{Generalized Linear (Mixed) Model}
+\section{Bayesian ANOVA}
+\section{Model Comparison}
+
+\section{Conclusion}
+
+
+
+
+\end{document}
