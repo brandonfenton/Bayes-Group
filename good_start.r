@@ -164,6 +164,59 @@ anova(glm.mod, test="Chisq")
 # anova(glm.mod.dmb)
 
 
+
+#### create some separation
+y2.vec <- rep(0,length(y.vec))
+## start with inoc
+set.seed(324)
+ino.rbin.1 <- rbinom(length(y.vec)*mean(od$ino==1),1,p=0.8) ## if not inoc
+ino.rbin.2 <- rbinom(length(y.vec)*mean(od$ino==2),1,p=0.95) ## if inoc
+# Brandon's trick
+y2.vec[od$ino==1][ino.rbin.1==1] <- y.vec[od$ino==1][ino.rbin.1==1]
+y2.vec[od$ino==2][ino.rbin.2==1] <- y.vec[od$ino==2][ino.rbin.2==1]
+## now nitrogen
+set.seed(833)
+nit.rbin.1 <- rbinom(length(y.vec)*mean(od$nit==1),1,p=0.8) ## if early
+nit.rbin.2 <- rbinom(length(y.vec)*mean(od$nit==2),1,p=0.95) ## if middle
+nit.rbin.3 <- rbinom(length(y.vec)*mean(od$nit==3),1,p=0.95) ## if late
+# Brandon's Trick
+y2.vec[od$nit==1][nit.rbin.1==0] <- 0
+y2.vec[od$nit==2][nit.rbin.2==0] <- 0
+y2.vec[od$nit==3][nit.rbin.3==0] <- 0
+## now variety, 2 and 5 are gonna be resistant (low probability)
+set.seed(2841)
+var.rbin.1 <- rbinom(length(y.vec)*mean(od$vty==1),1,p=0.95) ## 
+var.rbin.2 <- rbinom(length(y.vec)*mean(od$vty==2),1,p=0.8) ## very resistant
+var.rbin.3 <- rbinom(length(y.vec)*mean(od$vty==3),1,p=0.95) ## if late
+var.rbin.4 <- rbinom(length(y.vec)*mean(od$vty==4),1,p=0.95) ## if early
+var.rbin.5 <- rbinom(length(y.vec)*mean(od$vty==5),1,p=0.8) ## very resistant
+# The trick
+y2.vec[od$vty==1][var.rbin.1==0] <- 0
+y2.vec[od$vty==2][var.rbin.2==0] <- 0
+y2.vec[od$vty==3][var.rbin.3==0] <- 0
+y2.vec[od$vty==4][var.rbin.4==0] <- 0
+y2.vec[od$vty==5][var.rbin.5==0] <- 0
+## take a look
+plot(table(y2.vec))
+names(od)
+
+# attach to data set
+od$"infected2" <- y2.vec
+od$"uninfected2" <- 30 - y2.vec
+# write.csv(od,"od.csv",row.names = FALSE)
+summary(od)
+names(od)
+
+# start with glm to see if it runs
+glm.mod2 <- glm(cbind(infected2,uninfected2) ~ (blk+vty+nit+ino)^4, data=od, family=binomial(link = "logit"))
+summary(glm.mod2)
+anova(glm.mod2, test="Chisq")
+# require(effects)
+# plot(Effect(focal.predictors = c("vty","nit","ino"), mod = glm.mod2))
+
+
+
+
 ### git commit -a -m "message"
 ### git pull
 ### git push
