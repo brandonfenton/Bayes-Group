@@ -302,14 +302,16 @@ od.stan.data <- list(num_obs=n.o,
 # t3 <- read_stan_csv("trial_3.csv", col_major = TRUE)
 # t4 <- read_stan_csv("trial_4.csv", col_major = TRUE)
 trial5000 <- read_stan_csv(c("trial5000_1.csv","trial5000_2.csv","trial5000_3.csv","trial5000_4.csv"), col_major=TRUE)
-trial <- read_stan_csv(c("trial_1.csv","trial_2.csv","trial_3.csv","trial_4.csv"), col_major=TRUE)
+# trial <- read_stan_csv(c("trial_1.csv","trial_2.csv","trial_3.csv","trial_4.csv"), col_major=TRUE)
 # plot(your_sister, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="median")
-plot(trial, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="mean")
+plot(trial5000, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="mean")
 
 od.cauchy  <- stan_model(file = 'cauchy.stan', model_name = 'cauchyprior')
 od.cauchy.out <- sampling(od.cauchy, chains = 4, iter = 500, data = od.stan.data, sample_file = 'trial')
 
 plot(od.cauchy.out, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="mean")
+
+
 
 ### git commit -am "message"
 ### git pull
