@@ -65,32 +65,78 @@ mu <- -2.2 # Intercept: Because logit(0.1) is about -2.2
 
 set.seed(93)
 # six blocks
-b.eff <- rnorm(6,0,0.2)
+b.eff <- rnorm(6,0,0.01)
 # five varieties
 v.eff <- rnorm(5,0,0.05)
 # three nitrogen levels
-n.eff <- sort(rnorm(3,0,0.7))
+n.eff <- sort(rnorm(3,0,0.2))
 # two inoculation levels
 i.eff <- c(-0.5,0.5)
+#### kenny's dumb interaction effects
+## two-way interactions
+# block and variety
+bv.eff <- rnorm(30,0,0.00001)
+# block and nitrogen
+bn.eff <- rnorm(18,0,0.00001)
+# block and inoculation
+bi.eff <- rnorm(12,0,0.00001)
+# variety and nitrogen
+vn.eff <- rnorm(15,0,0.01)
+# variety and inoculation
+vi.eff <- rnorm(10,0,0.03)
+# nitrogen and inoculation
+ni.eff <- rnorm(6,0,0.03)
+## three-way interactions
+# block, variety, and nitrogen
+bvn.eff <- rnorm(90,0,0.00001)
+# block, variety, and inoculation
+bvi.eff <- rnorm(60,0,0.00001)
+# block, nitrogen, and inoculation
+bni.eff <- rnorm(36,0,0.00001)
+# variety, nitrogen, and inoculation
+vni.eff <- rnorm(30,0,0.001)
+## four-way interaction
+# bvni.eff <- rnorm(180,0,0.000001) # really is residual error since we do not have replication
+
+#### update design (really data) matrix with the levels of each interaction
+head(design)
+## 2s
+bv.int <- as.numeric(interaction(design[,1],design[,4]))
+bn.int <- as.numeric(interaction(design[,1],design[,6]))
+bi.int <- as.numeric(interaction(design[,1],design[,5]))
+vn.int <- as.numeric(interaction(design[,4],design[,6]))
+vi.int <- as.numeric(interaction(design[,4],design[,5]))
+ni.int <- as.numeric(interaction(design[,6],design[,5]))
+## 3s
+bvn.int <- as.numeric(interaction(design[,1],design[,4],design[,6]))
+bvi.int <- as.numeric(interaction(design[,4],design[,6]))
+bni.int <- as.numeric(interaction(design[,4],design[,5]))
+vni.int <- as.numeric(interaction(design[,6],design[,5]))
+
+## update data frame
+od <- data.frame(
+  "blk" = factor(design[,1]),
+  "vty" = factor(design[,4]),
+  "nit" = factor(design[,6]),
+  "ino" = factor(design[,5]),
+  "bv.int" = factor(bv.int),
+  "bn.int" = factor(bn.int),
+  "bi.int" = factor(bi.int),
+  "vn.int" = factor(vn.int),
+  "vi.int" = factor(vi.int),
+  "ni.int" = factor(ni.int),
+  "bvn.int" = factor(bvn.int),
+  "bvi.int" = factor(bvi.int),
+  "bni.int" = factor(bni.int),
+  "vni.int" = factor(vni.int)
+)
 
 # generate probablities
-logit.pi.vec <- rep(0,180) # logit(pi) = X * beta
-# block is col 1, variety is col 4, inoc is col 5, nit is col 6
-for(i in 1:180){
-  logit.pi.vec[i] <- mu + b.eff[design[i,1]] + v.eff[design[i,4]] + # 4 effects
-                          n.eff[design[i,6]] + i.eff[design[i,5]] + 
-                           b.eff[design[i,1]]*v.eff[design[i,4]] + # 6 two-way interactions
-                           b.eff[design[i,1]]*n.eff[design[i,6]] +
-                           b.eff[design[i,1]]*i.eff[design[i,5]] +
-                           v.eff[design[i,4]]*n.eff[design[i,6]] +
-                           v.eff[design[i,4]]*i.eff[design[i,5]] +
-                           n.eff[design[i,6]]*i.eff[design[i,5]] +
-                      b.eff[design[i,1]]*v.eff[design[i,4]]*n.eff[design[i,6]] + # 4 three-way interactions
-                      b.eff[design[i,1]]*v.eff[design[i,4]]*i.eff[design[i,5]] +
-                      b.eff[design[i,1]]*n.eff[design[i,6]]*i.eff[design[i,5]] +
-                      v.eff[design[i,4]]*n.eff[design[i,6]]*i.eff[design[i,5]] +
-     b.eff[design[i,1]]*v.eff[design[i,4]]*n.eff[design[i,6]]*i.eff[design[i,5]] # 1 four-way interaction
-}
+logit.pi.vec <- mu + b.eff[od[,1]] + v.eff[od[,2]] + n.eff[od[,3]] + i.eff[od[,4]] + 
+  bv.eff[od[,5]] + bn.eff[od[,6]] + bi.eff[od[,7]] + 
+  vn.eff[od[,8]] + vi.eff[od[,9]] + ni.eff[od[,10]] + 
+  bvn.eff[od[,11]] + bvi.eff[od[,12]] + bni.eff[od[,13]] + vni.eff[od[,14]]  
+
 # transform back to pi scale
 pi.vec <- apply(cbind(logit.pi.vec), 1, expit) # pi = expit(X * beta)
 # simulate some y's (leaves - out of 30 - that are contaminated)
@@ -98,14 +144,169 @@ set.seed(324)
 y.vec <- apply(cbind(pi.vec), 1, function(p) rbinom(1,30,p)) # y_i ~ Bin(30,pi_i)
 
 # attach to data set
-design$"infected" <- y.vec
-design$"total" <- rep(30,180)
-summary(design)
-names(design)
+od$"infected" <- y.vec
+od$"uninfected" <- 30 - y.vec
+# write.csv(od,"od.csv",row.names = FALSE)
+summary(od)
+names(od)
 
 # glmer
 require(lme4)
 # start with glm to see if it runs
-glm.mod <- glm(cbind(infected,total-infected) ~ (block + variety + inoc + nitrogen)^4,
-                data=design, family=binomial(link = "logit"))
+glm.mod <- glm(cbind(infected,uninfected) ~ (blk+vty+nit+ino)^4, data=od, family=binomial(link = "logit"))
+# glm.mod.dmb <- glm(cbind(infected,uninfected) ~ factor(blk)+factor(vty)+factor(nit)+factor(ino)
+#                +factor(bv.int)+factor(bn.int)+factor(bi.int)+factor(vn.int)+factor(vi.int)+factor(ni.int)
+#                +factor(bvn.int)+factor(bvi.int)+factor(bni.int)+factor(vni.int),
+#                data=od, family=binomial(link = "logit"))
 summary(glm.mod)
+anova(glm.mod, test="Chisq")
+# summary(glm.mod.dmb)
+# anova(glm.mod.dmb)
+
+
+
+#### create some separation
+y2.vec <- rep(0,length(y.vec))
+## start with inoc
+set.seed(324)
+ino.rbin.1 <- rbinom(length(y.vec)*mean(od$ino==1),1,p=0.8) ## if not inoc
+ino.rbin.2 <- rbinom(length(y.vec)*mean(od$ino==2),1,p=0.95) ## if inoc
+# Brandon's trick
+y2.vec[od$ino==1][ino.rbin.1==1] <- y.vec[od$ino==1][ino.rbin.1==1]
+y2.vec[od$ino==2][ino.rbin.2==1] <- y.vec[od$ino==2][ino.rbin.2==1]
+## now nitrogen
+set.seed(833)
+nit.rbin.1 <- rbinom(length(y.vec)*mean(od$nit==1),1,p=0.8) ## if early
+nit.rbin.2 <- rbinom(length(y.vec)*mean(od$nit==2),1,p=0.95) ## if middle
+nit.rbin.3 <- rbinom(length(y.vec)*mean(od$nit==3),1,p=0.95) ## if late
+# Brandon's Trick
+y2.vec[od$nit==1][nit.rbin.1==0] <- 0
+y2.vec[od$nit==2][nit.rbin.2==0] <- 0
+y2.vec[od$nit==3][nit.rbin.3==0] <- 0
+## now variety, 2 and 5 are gonna be resistant (low probability)
+set.seed(2841)
+var.rbin.1 <- rbinom(length(y.vec)*mean(od$vty==1),1,p=0.95) ## 
+var.rbin.2 <- rbinom(length(y.vec)*mean(od$vty==2),1,p=0.8) ## very resistant
+var.rbin.3 <- rbinom(length(y.vec)*mean(od$vty==3),1,p=0.95) ## if late
+var.rbin.4 <- rbinom(length(y.vec)*mean(od$vty==4),1,p=0.95) ## if early
+var.rbin.5 <- rbinom(length(y.vec)*mean(od$vty==5),1,p=0.8) ## very resistant
+# The trick
+y2.vec[od$vty==1][var.rbin.1==0] <- 0
+y2.vec[od$vty==2][var.rbin.2==0] <- 0
+y2.vec[od$vty==3][var.rbin.3==0] <- 0
+y2.vec[od$vty==4][var.rbin.4==0] <- 0
+y2.vec[od$vty==5][var.rbin.5==0] <- 0
+## take a look
+plot(table(y2.vec))
+names(od)
+
+# attach to data set
+od$"infected2" <- y2.vec
+od$"uninfected2" <- 30 - y2.vec
+# write.csv(od,"od.csv",row.names = FALSE)
+summary(od)
+names(od)
+
+# start with glm to see if it runs
+glm.mod2 <- glm(cbind(infected2,uninfected2) ~ (blk+vty+nit+ino)^4, data=od, family=binomial(link = "logit"))
+summary(glm.mod2)
+anova(glm.mod2, test="Chisq")
+# require(effects)
+# plot(Effect(focal.predictors = c("vty","nit","ino"), mod = glm.mod2))
+
+
+
+#### STANislaw 
+require(rstan)
+setwd("C:/Users/dsand_000/Desktop/Stats/S532/Final")
+### set up data to send in to STAN
+# sample sizes
+n.o <- 180
+m <- 30
+n.b <- 6
+n.v <- 5
+n.n <- 3
+n.i <- 2
+n.bv <- n.b*n.v
+n.bn <- n.b*n.n
+n.bi <- n.b*n.i
+n.vn <- n.v*n.n
+n.vi <- n.v*n.i
+n.ni <- n.n*n.i
+n.bvn <- n.b*n.v*n.n
+n.bvi <- n.b*n.v*n.i
+n.bni <- n.b*n.n*n.i
+n.vni <- n.v*n.n*n.i
+
+# vectors of levels
+b.vec <- od$blk
+v.vec <- od$vty
+n.vec <- od$nit
+i.vec <- od$ino
+bv.vec <- od$bv.int
+bn.vec <- od$bn.int
+bi.vec <- od$bi.int
+vn.vec <- od$vn.int
+vi.vec <- od$vi.int
+ni.vec <- od$ni.int
+bvn.vec <- od$bvn.int
+bvi.vec <- od$bvi.int
+bni.vec <- od$bni.int
+vni.vec <- od$vni.int
+
+# infected
+y <- od$infected
+
+
+
+
+#### possibly useless
+weiner_logs <- list(num_obs=n.o, 
+                    m=m, 
+                    num_b=n.b, 
+                    num_v=n.v, 
+                    num_n=n.n, 
+                    num_i=n.i, 
+                    num_bv=n.bv, 
+                    num_bn=n.bn, 
+                    num_bi=n.bi, 
+                    num_vn=n.vn, 
+                    num_vi=n.vi, 
+                    num_ni=n.ni, 
+                    num_bvn=n.bvn, 
+                    num_bvi=n.bvi, 
+                    num_bni=n.bni, 
+                    num_vni=n.vni, 
+                    y=y,
+                    blk=b.vec, 
+                    vty=v.vec, 
+                    nit=n.vec, 
+                    ino=i.vec, 
+                    bv_int=bv.vec, 
+                    bn_int=bn.vec, 
+                    bi_int=bi.vec, 
+                    vn_int=vn.vec, 
+                    vi_int=vi.vec, 
+                    ni_int=ni.vec, 
+                    bvn_int=bvn.vec, 
+                    bvi_int=bvi.vec, 
+                    bni_int=bni.vec, 
+                    vni_int=vni.vec)
+stan_herpes <- stan_model(file = "./your_mom.stan", model_name = "ni")
+require(rstudioapi)
+options(mc.cores = 1)
+your_sister <- sampling(stan_herpes, chains = 4, iter = 500, data = weiner_logs, sample_file="trial")
+# t1 <- read_stan_csv("trial_1.csv", col_major = TRUE)
+# t2 <- read_stan_csv("trial_2.csv", col_major = TRUE)
+# t3 <- read_stan_csv("trial_3.csv", col_major = TRUE)
+# t4 <- read_stan_csv("trial_4.csv", col_major = TRUE)
+trial <- read_stan_csv(c("trial_1.csv","trial_2.csv","trial_3.csv","trial_4.csv"), col_major=TRUE)
+# plot(your_sister, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="median")
+plot(trial, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="median")
+
+
+
+
+### git commit -a -m "message"
+### git pull
+### git push
