@@ -1,3 +1,10 @@
-*.log
-*.aux
-*synctex*
+*.md
+*.tex
+*.r
+*.pdf
+*.STAN
+*.stan
+*.Rnw
+*.rnw
+!*
+
