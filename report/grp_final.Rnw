@@ -93,10 +93,22 @@ setwd("C:/Users/dsand_000/Desktop/Stats/S532/gitProj/Bayes-Group/report")
 
 
 \section{Introduction}
-Bayseian inference is becoming a popular topic as of late; such is the case for fields like Ecology. However, the practice of Bayesian data analyis is rarely utilized in the Consulting Seminar for clients because few are familiar with the methodology. We hope to illustrate that, while Bayesian data analysis may be less familiar than its likelihood or frequentist counterparts, it can provide results when other approaches do not. Additionally, it is our goal to provide easy to understand implementations of Bayesian inference.
+Bayseian inference is becoming a popular topic as of late; such is the case for fields like Ecology. However, the practice of Bayesian data analyis is rarely utilized in the Consulting Seminar for clients because few are familiar with the methodology. We hope to illustrate that, while Bayesian data analysis may be less familiar than its likelihood or frequentist counterparts, it can provide results when other approaches do not. Additionally, it is our goal to provide easy to understand implementations of Bayesian inference. This report will implement both a likelihoodist and Bayesian approach in order to compare results.
 
 \section{Objectives}
+Nar is interested in the effect that variety, application time of nitrogen, and inoculation have on the probability of virus infection in Winter Wheat. Of primary interest is the effect of application time of nitrogen, as well as assessing evidence for all possible two and three way interactions. The simplest possible model, to describe the effects of the above variables, is desirable.
 
+Throughout this report, it is our desire to address the following questions:
+\begin{itemize}
+\item Is there evidence that the interaction between time of nitrogen application and variety of wheat differs between plots where plants were inoculated or not?
+
+\item Is there evidence that the time of nitrogen application varies across varieties of wheat? Additionally, is there evidence that the time of nitrogen application differs between plots where plants were inoculated or not?
+
+\item Is there evidence that the variety of wheat differs between plots where plants were inoculated or not?
+
+\item Conditional on the results to the above questions, how do we appropriately describe the estimated effects for variety, nitrogen application time, and inoculation on the
+probability of virus infection?
+\end{itemize}
 
 \section{Design}
 \section{Simulation}
