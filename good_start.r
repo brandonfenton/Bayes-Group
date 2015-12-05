@@ -153,9 +153,15 @@ names(od)
 # glmer
 require(lme4)
 # start with glm to see if it runs
-glm.mod <- glm(cbind(infected,total-infected) ~ (block + variety + inoc + nitrogen)^4,
-                data=design, family=binomial(link = "logit"))
+glm.mod <- glm(cbind(infected,uninfected) ~ (blk+vty+nit+ino)^4, data=od, family=binomial(link = "logit"))
+# glm.mod.dmb <- glm(cbind(infected,uninfected) ~ factor(blk)+factor(vty)+factor(nit)+factor(ino)
+#                +factor(bv.int)+factor(bn.int)+factor(bi.int)+factor(vn.int)+factor(vi.int)+factor(ni.int)
+#                +factor(bvn.int)+factor(bvi.int)+factor(bni.int)+factor(vni.int),
+#                data=od, family=binomial(link = "logit"))
 summary(glm.mod)
+anova(glm.mod, test="Chisq")
+# summary(glm.mod.dmb)
+# anova(glm.mod.dmb)
 
 
 ### git commit -a -m "message"
