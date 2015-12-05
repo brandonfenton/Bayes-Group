@@ -224,6 +224,9 @@ setwd("C:/Users/dsand_000/Desktop/Stats/S532/gitProj/Bayes-Group")
 # sample sizes
 n.o <- 180
 m <- 30
+
+cauchysd <- 3
+
 n.b <- 6
 n.v <- 5
 n.n <- 3
@@ -262,40 +265,41 @@ y <- od$infected
 
 
 #### possibly useless
-od.stan.data <- list(num_obs=n.o,
-                     m=m,
-                     num_b=n.b,
-                     num_v=n.v,
-                     num_n=n.n,
-                     num_i=n.i,
-                     num_bv=n.bv,
-                     num_bn=n.bn,
-                     num_bi=n.bi,
-                     num_vn=n.vn,
-                     num_vi=n.vi,
-                     num_ni=n.ni,
-                     num_bvn=n.bvn,
-                     num_bvi=n.bvi,
-                     num_bni=n.bni,
-                     num_vni=n.vni,
-                     y=y,
-                     blk=as.numeric(b.vec),
-                     vty=as.numeric(v.vec),
-                     nit=as.numeric(n.vec),
-                     ino=as.numeric(i.vec),
-                     bv_int=as.numeric(bv.vec),
-                     bn_int=as.numeric(bn.vec),
-                     bi_int=as.numeric(bi.vec),
-                     vn_int=as.numeric(vn.vec),
-                     vi_int=as.numeric(vi.vec),
-                     ni_int=as.numeric(ni.vec),
-                     bvn_int=as.numeric(bvn.vec),
-                     bvi_int=as.numeric(bvi.vec),
-                     bni_int=as.numeric(bni.vec),
-                     vni_int=as.numeric(vni.vec))
+od.stan.data <- list(num_obs = n.o,
+                     m = m,
+                     cauchysd = cauchysd,
+                     num_b = n.b,
+                     num_v = n.v,
+                     num_n = n.n,
+                     num_i = n.i,
+                     num_bv = n.bv,
+                     num_bn = n.bn,
+                     num_bi = n.bi,
+                     num_vn = n.vn,
+                     num_vi = n.vi,
+                     num_ni = n.ni,
+                     num_bvn = n.bvn,
+                     num_bvi = n.bvi,
+                     num_bni = n.bni,
+                     num_vni = n.vni,
+                     y = y,
+                     blk = as.numeric(b.vec),
+                     vty = as.numeric(v.vec),
+                     nit = as.numeric(n.vec),
+                     ino = as.numeric(i.vec),
+                     bv_int = as.numeric(bv.vec),
+                     bn_int = as.numeric(bn.vec),
+                     bi_int = as.numeric(bi.vec),
+                     vn_int = as.numeric(vn.vec),
+                     vi_int = as.numeric(vi.vec),
+                     ni_int = as.numeric(ni.vec),
+                     bvn_int = as.numeric(bvn.vec),
+                     bvi_int = as.numeric(bvi.vec),
+                     bni_int = as.numeric(bni.vec),
+                     vni_int = as.numeric(vni.vec))
 #stan_herpes <- stan_model(file = "./your_mom.stan", model_name = "ni")
-#require(rstudioapi)
-#options(mc.cores = 1)
+rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores())
 #your_sister <- sampling(stan_herpes, chains = 4, iter = 500, data = weiner_logs, sample_file="trial")
 # t1 <- read_stan_csv("trial_1.csv", col_major = TRUE)
 # t2 <- read_stan_csv("trial_2.csv", col_major = TRUE)
@@ -306,10 +310,48 @@ trial <- read_stan_csv(c("trial_1.csv","trial_2.csv","trial_3.csv","trial_4.csv"
 # plot(your_sister, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="median")
 plot(trial, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="mean")
 
-od.cauchy  <- stan_model(file = 'cauchy.stan', model_name = 'cauchyprior')
+od.cauchy <- stan_model(file = 'cauchy.stan', model_name = 'cauchyprior')
 od.cauchy.out <- sampling(od.cauchy, chains = 4, iter = 500, data = od.stan.data, sample_file = 'trial')
 
 plot(od.cauchy.out, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="mean")
+
+# A simple sensitivity analysis
+scales <- c(1, 2, 3, 5, 7, 11)
+sens <- lapply(scales, function(scale){
+    stan.data <- list(num_obs = n.o, m = m, cauchysd = scale,
+                      num_b = n.b, num_v = n.v, num_n = n.n, num_i = n.i,
+                      num_bv = n.bv, num_bn = n.bn, num_bi = n.bi,
+                      num_vn = n.vn, num_vi = n.vi, num_ni = n.ni,
+                      num_bvn = n.bvn, num_bvi = n.bvi, num_bni = n.bni,
+                      num_vni = n.vni, y = y, blk = as.numeric(b.vec),
+                      vty = as.numeric(v.vec), nit = as.numeric(n.vec),
+                      ino = as.numeric(i.vec), bv_int = as.numeric(bv.vec),
+                      bn_int = as.numeric(bn.vec), bi_int = as.numeric(bi.vec),
+                      vn_int = as.numeric(vn.vec), vi_int = as.numeric(vi.vec),
+                      ni_int = as.numeric(ni.vec),
+                      bvn_int = as.numeric(bvn.vec),
+                      bvi_int = as.numeric(bvi.vec),
+                      bni_int = as.numeric(bni.vec),
+                      vni_int = as.numeric(vni.vec))
+    return(sampling(od.cauchy, chains = 4, iter = 1000, data = stan.data))
+  })
+
+for(param in c("sigma_b", "sigma_v", "sigma_n", "sigma_i",
+               "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn",
+               "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi",
+               "sigma_bni", "sigma_vni")){
+  plot(NULL, xlim = c(0, 20), ylim = c(length(sens):1),
+       main = paste('Comparison of', param),
+       xlab = param, ylab = 'Prior Scale', yaxt = 'n')
+  axis(2, at = 1:length(sens), labels = sense, las = 1)
+  for(i in 1:length(sens)){
+    sig.current <-extract(sens[[i]], pars = param)$param
+    segments(x0 = quantile(sig.current, c(0.025, 0.25)),
+             x1 = quantile(sig.current, c(0.975, 0.75)),
+             y0 = i, lwd = c(1, 3))
+    points(x = i, y = median(sig.current))
+  }
+}
 
 ### git commit -am "message"
 ### git pull

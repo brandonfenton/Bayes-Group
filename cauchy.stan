@@ -3,6 +3,7 @@ data{
   // combinations of factors
 	int num_obs;
 	int m; //binomial trials
+  real<lower=0> cauchysd; // Cauchy scale for sigma priors
 	int num_b;
 	int num_v;
 	int num_n;
@@ -106,18 +107,18 @@ model{
 	v_n_i ~ normal(0, sigma_vni); // batch of 30
 
 	// priors on standard deviations
- 	sigma_b ~ cauchy(0, 5);
-	sigma_v ~ cauchy(0, 5);
-	sigma_n ~ cauchy(0, 5);
-	sigma_i ~ cauchy(0, 5);
-	sigma_bv ~ cauchy(0, 5);
-	sigma_bn ~ cauchy(0, 5);
-	sigma_bi ~ cauchy(0, 5);
-	sigma_vn ~ cauchy(0, 5);
-  sigma_vi ~ cauchy(0, 5);
-	sigma_ni ~ cauchy(0, 5);
-	sigma_bvn ~ cauchy(0, 5);
-	sigma_bvi ~ cauchy(0, 5);
-	sigma_bni ~ cauchy(0, 5);
-	sigma_vni ~ cauchy(0, 5);
+ 	sigma_b ~ cauchy(0, cauchysd);
+	sigma_v ~ cauchy(0, cauchysd);
+	sigma_n ~ cauchy(0, cauchysd);
+	sigma_i ~ cauchy(0, cauchysd);
+	sigma_bv ~ cauchy(0, cauchysd);
+	sigma_bn ~ cauchy(0, cauchysd);
+	sigma_bi ~ cauchy(0, cauchysd);
+	sigma_vn ~ cauchy(0, cauchysd);
+  sigma_vi ~ cauchy(0, cauchysd);
+	sigma_ni ~ cauchy(0, cauchysd);
+	sigma_bvn ~ cauchy(0, cauchysd);
+	sigma_bvi ~ cauchy(0, cauchysd);
+	sigma_bni ~ cauchy(0, cauchysd);
+	sigma_vni ~ cauchy(0, cauchysd);
 }
