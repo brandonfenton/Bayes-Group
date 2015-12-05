@@ -216,6 +216,96 @@ anova(glm.mod2, test="Chisq")
 
 
 
+#### STANislaw 
+require(rstan)
+setwd("C:/Users/dsand_000/Desktop/Stats/S532/Final")
+### set up data to send in to STAN
+# sample sizes
+n.o <- 180
+m <- 30
+n.b <- 6
+n.v <- 5
+n.n <- 3
+n.i <- 2
+n.bv <- n.b*n.v
+n.bn <- n.b*n.n
+n.bi <- n.b*n.i
+n.vn <- n.v*n.n
+n.vi <- n.v*n.i
+n.ni <- n.n*n.i
+n.bvn <- n.b*n.v*n.n
+n.bvi <- n.b*n.v*n.i
+n.bni <- n.b*n.n*n.i
+n.vni <- n.v*n.n*n.i
+
+# vectors of levels
+b.vec <- od$blk
+v.vec <- od$vty
+n.vec <- od$nit
+i.vec <- od$ino
+bv.vec <- od$bv.int
+bn.vec <- od$bn.int
+bi.vec <- od$bi.int
+vn.vec <- od$vn.int
+vi.vec <- od$vi.int
+ni.vec <- od$ni.int
+bvn.vec <- od$bvn.int
+bvi.vec <- od$bvi.int
+bni.vec <- od$bni.int
+vni.vec <- od$vni.int
+
+# infected
+y <- od$infected
+
+
+
+
+#### possibly useless
+weiner_logs <- list(num_obs=n.o, 
+                    m=m, 
+                    num_b=n.b, 
+                    num_v=n.v, 
+                    num_n=n.n, 
+                    num_i=n.i, 
+                    num_bv=n.bv, 
+                    num_bn=n.bn, 
+                    num_bi=n.bi, 
+                    num_vn=n.vn, 
+                    num_vi=n.vi, 
+                    num_ni=n.ni, 
+                    num_bvn=n.bvn, 
+                    num_bvi=n.bvi, 
+                    num_bni=n.bni, 
+                    num_vni=n.vni, 
+                    y=y,
+                    blk=b.vec, 
+                    vty=v.vec, 
+                    nit=n.vec, 
+                    ino=i.vec, 
+                    bv_int=bv.vec, 
+                    bn_int=bn.vec, 
+                    bi_int=bi.vec, 
+                    vn_int=vn.vec, 
+                    vi_int=vi.vec, 
+                    ni_int=ni.vec, 
+                    bvn_int=bvn.vec, 
+                    bvi_int=bvi.vec, 
+                    bni_int=bni.vec, 
+                    vni_int=vni.vec)
+stan_herpes <- stan_model(file = "./your_mom.stan", model_name = "ni")
+require(rstudioapi)
+options(mc.cores = 1)
+your_sister <- sampling(stan_herpes, chains = 4, iter = 500, data = weiner_logs, sample_file="trial")
+# t1 <- read_stan_csv("trial_1.csv", col_major = TRUE)
+# t2 <- read_stan_csv("trial_2.csv", col_major = TRUE)
+# t3 <- read_stan_csv("trial_3.csv", col_major = TRUE)
+# t4 <- read_stan_csv("trial_4.csv", col_major = TRUE)
+trial <- read_stan_csv(c("trial_1.csv","trial_2.csv","trial_3.csv","trial_4.csv"), col_major=TRUE)
+# plot(your_sister, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="median")
+plot(trial, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="median")
+
+
+
 
 ### git commit -a -m "message"
 ### git pull
