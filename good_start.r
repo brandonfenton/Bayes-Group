@@ -335,21 +335,25 @@ sens <- lapply(scales, function(scale){
                       vni_int = as.numeric(vni.vec))
     return(sampling(od.cauchy, chains = 4, iter = 1000, data = stan.data))
   })
+#save(sens, file = 'sens.rdata')
+load('sens.rdata')
 
-for(param in c("sigma_b", "sigma_v", "sigma_n", "sigma_i",
-               "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn",
-               "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi",
-               "sigma_bni", "sigma_vni")){
-  plot(NULL, xlim = c(0, 20), ylim = c(length(sens):1),
-       main = paste('Comparison of', param),
+params <- c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv",
+            "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni",
+            "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni")
+xlims <- c(1, 1, 8, 20, 1, 1, 1, 1, 1, 3, 1, 1, 1, 5)
+par(mfrow = c(3, 5))
+for(j in 1:length(params)){
+  plot(NULL, xlim = c(0, xlims[j]), ylim = c(length(sens), 1),
+       main = paste('Comparison of', params[j], 'Prior Scales'),
        xlab = param, ylab = 'Prior Scale', yaxt = 'n')
-  axis(2, at = 1:length(sens), labels = sense, las = 1)
+  axis(2, at = 1:length(sens), labels = scales, las = 1)
   for(i in 1:length(sens)){
-    sig.current <-extract(sens[[i]], pars = param)$param
+    sig.current <- unlist(extract(sens[[i]], pars = params[j]))
     segments(x0 = quantile(sig.current, c(0.025, 0.25)),
              x1 = quantile(sig.current, c(0.975, 0.75)),
              y0 = i, lwd = c(1, 3))
-    points(x = i, y = median(sig.current))
+    points(x = median(sig.current), y = i, pch = 20)
   }
 }
 
