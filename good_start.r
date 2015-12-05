@@ -218,7 +218,8 @@ anova(glm.mod2, test="Chisq")
 
 #### STANislaw 
 require(rstan)
-setwd("C:/Users/dsand_000/Desktop/Stats/S532/Final")
+## Doug's Working Directory
+setwd("C:/Users/dsand_000/Desktop/Stats/S532/gitProj/Bayes-Group")
 ### set up data to send in to STAN
 # sample sizes
 n.o <- 180
@@ -300,13 +301,13 @@ your_sister <- sampling(stan_herpes, chains = 4, iter = 500, data = weiner_logs,
 # t2 <- read_stan_csv("trial_2.csv", col_major = TRUE)
 # t3 <- read_stan_csv("trial_3.csv", col_major = TRUE)
 # t4 <- read_stan_csv("trial_4.csv", col_major = TRUE)
-trial <- read_stan_csv(c("trial_1.csv","trial_2.csv","trial_3.csv","trial_4.csv"), col_major=TRUE)
+trial <- read_stan_csv(c("trial5000_1.csv","trial5000_2.csv","trial5000_3.csv","trial5000_4.csv"), col_major=TRUE)
 # plot(your_sister, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="median")
 plot(trial, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="median")
 
 
 
 
-### git commit -a -m "message"
+### git commit -am "message"
 ### git pull
 ### git push
