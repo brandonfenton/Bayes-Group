@@ -132,10 +132,10 @@ od <- data.frame(
 )
 
 # generate probablities
-logit.pi.vec <- mu + b.eff[od[,1]] + v.eff[od[,2]] + n.eff[od[,3]] + i.eff[od[,4]] + 
-  bv.eff[od[,5]] + bn.eff[od[,6]] + bi.eff[od[,7]] + 
-  vn.eff[od[,8]] + vi.eff[od[,9]] + ni.eff[od[,10]] + 
-  bvn.eff[od[,11]] + bvi.eff[od[,12]] + bni.eff[od[,13]] + vni.eff[od[,14]]  
+logit.pi.vec <- mu + b.eff[od[,1]] + v.eff[od[,2]] + n.eff[od[,3]] + i.eff[od[,4]] +
+  bv.eff[od[,5]] + bn.eff[od[,6]] + bi.eff[od[,7]] +
+  vn.eff[od[,8]] + vi.eff[od[,9]] + ni.eff[od[,10]] +
+  bvn.eff[od[,11]] + bvi.eff[od[,12]] + bni.eff[od[,13]] + vni.eff[od[,14]]
 
 # transform back to pi scale
 pi.vec <- apply(cbind(logit.pi.vec), 1, expit) # pi = expit(X * beta)
@@ -185,7 +185,7 @@ y2.vec[od$nit==2][nit.rbin.2==0] <- 0
 y2.vec[od$nit==3][nit.rbin.3==0] <- 0
 ## now variety, 2 and 5 are gonna be resistant (low probability)
 set.seed(2841)
-var.rbin.1 <- rbinom(length(y.vec)*mean(od$vty==1),1,p=0.95) ## 
+var.rbin.1 <- rbinom(length(y.vec)*mean(od$vty==1),1,p=0.95) ##
 var.rbin.2 <- rbinom(length(y.vec)*mean(od$vty==2),1,p=0.8) ## very resistant
 var.rbin.3 <- rbinom(length(y.vec)*mean(od$vty==3),1,p=0.95) ## if late
 var.rbin.4 <- rbinom(length(y.vec)*mean(od$vty==4),1,p=0.95) ## if early
@@ -216,7 +216,7 @@ anova(glm.mod2, test="Chisq")
 
 
 
-#### STANislaw 
+#### STANislaw
 require(rstan)
 ## Doug's Working Directory
 setwd("C:/Users/dsand_000/Desktop/Stats/S532/gitProj/Bayes-Group")
@@ -262,51 +262,54 @@ y <- od$infected
 
 
 #### possibly useless
-weiner_logs <- list(num_obs=n.o, 
-                    m=m, 
-                    num_b=n.b, 
-                    num_v=n.v, 
-                    num_n=n.n, 
-                    num_i=n.i, 
-                    num_bv=n.bv, 
-                    num_bn=n.bn, 
-                    num_bi=n.bi, 
-                    num_vn=n.vn, 
-                    num_vi=n.vi, 
-                    num_ni=n.ni, 
-                    num_bvn=n.bvn, 
-                    num_bvi=n.bvi, 
-                    num_bni=n.bni, 
-                    num_vni=n.vni, 
-                    y=y,
-                    blk=b.vec, 
-                    vty=v.vec, 
-                    nit=n.vec, 
-                    ino=i.vec, 
-                    bv_int=bv.vec, 
-                    bn_int=bn.vec, 
-                    bi_int=bi.vec, 
-                    vn_int=vn.vec, 
-                    vi_int=vi.vec, 
-                    ni_int=ni.vec, 
-                    bvn_int=bvn.vec, 
-                    bvi_int=bvi.vec, 
-                    bni_int=bni.vec, 
-                    vni_int=vni.vec)
-stan_herpes <- stan_model(file = "./your_mom.stan", model_name = "ni")
-require(rstudioapi)
-options(mc.cores = 1)
-your_sister <- sampling(stan_herpes, chains = 4, iter = 500, data = weiner_logs, sample_file="trial")
+od.stan.data <- list(num_obs=n.o,
+                     m=m,
+                     num_b=n.b,
+                     num_v=n.v,
+                     num_n=n.n,
+                     num_i=n.i,
+                     num_bv=n.bv,
+                     num_bn=n.bn,
+                     num_bi=n.bi,
+                     num_vn=n.vn,
+                     num_vi=n.vi,
+                     num_ni=n.ni,
+                     num_bvn=n.bvn,
+                     num_bvi=n.bvi,
+                     num_bni=n.bni,
+                     num_vni=n.vni,
+                     y=y,
+                     blk=as.numeric(b.vec),
+                     vty=as.numeric(v.vec),
+                     nit=as.numeric(n.vec),
+                     ino=as.numeric(i.vec),
+                     bv_int=as.numeric(bv.vec),
+                     bn_int=as.numeric(bn.vec),
+                     bi_int=as.numeric(bi.vec),
+                     vn_int=as.numeric(vn.vec),
+                     vi_int=as.numeric(vi.vec),
+                     ni_int=as.numeric(ni.vec),
+                     bvn_int=as.numeric(bvn.vec),
+                     bvi_int=as.numeric(bvi.vec),
+                     bni_int=as.numeric(bni.vec),
+                     vni_int=as.numeric(vni.vec))
+#stan_herpes <- stan_model(file = "./your_mom.stan", model_name = "ni")
+#require(rstudioapi)
+#options(mc.cores = 1)
+#your_sister <- sampling(stan_herpes, chains = 4, iter = 500, data = weiner_logs, sample_file="trial")
 # t1 <- read_stan_csv("trial_1.csv", col_major = TRUE)
 # t2 <- read_stan_csv("trial_2.csv", col_major = TRUE)
 # t3 <- read_stan_csv("trial_3.csv", col_major = TRUE)
 # t4 <- read_stan_csv("trial_4.csv", col_major = TRUE)
-trial <- read_stan_csv(c("trial5000_1.csv","trial5000_2.csv","trial5000_3.csv","trial5000_4.csv"), col_major=TRUE)
+trial5000 <- read_stan_csv(c("trial5000_1.csv","trial5000_2.csv","trial5000_3.csv","trial5000_4.csv"), col_major=TRUE)
+trial <- read_stan_csv(c("trial_1.csv","trial_2.csv","trial_3.csv","trial_4.csv"), col_major=TRUE)
 # plot(your_sister, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="median")
 plot(trial, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="mean")
 
+od.cauchy  <- stan_model(file = 'cauchy.stan', model_name = 'cauchyprior')
+od.cauchy.out <- sampling(od.cauchy, chains = 4, iter = 500, data = od.stan.data, sample_file = 'trial')
 
-
+plot(od.cauchy.out, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="mean")
 
 ### git commit -am "message"
 ### git pull
