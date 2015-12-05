@@ -65,32 +65,78 @@ mu <- -2.2 # Intercept: Because logit(0.1) is about -2.2
 
 set.seed(93)
 # six blocks
-b.eff <- rnorm(6,0,0.2)
+b.eff <- rnorm(6,0,0.01)
 # five varieties
 v.eff <- rnorm(5,0,0.05)
 # three nitrogen levels
-n.eff <- sort(rnorm(3,0,0.7))
+n.eff <- sort(rnorm(3,0,0.2))
 # two inoculation levels
 i.eff <- c(-0.5,0.5)
+#### kenny's dumb interaction effects
+## two-way interactions
+# block and variety
+bv.eff <- rnorm(30,0,0.00001)
+# block and nitrogen
+bn.eff <- rnorm(18,0,0.00001)
+# block and inoculation
+bi.eff <- rnorm(12,0,0.00001)
+# variety and nitrogen
+vn.eff <- rnorm(15,0,0.01)
+# variety and inoculation
+vi.eff <- rnorm(10,0,0.03)
+# nitrogen and inoculation
+ni.eff <- rnorm(6,0,0.03)
+## three-way interactions
+# block, variety, and nitrogen
+bvn.eff <- rnorm(90,0,0.00001)
+# block, variety, and inoculation
+bvi.eff <- rnorm(60,0,0.00001)
+# block, nitrogen, and inoculation
+bni.eff <- rnorm(36,0,0.00001)
+# variety, nitrogen, and inoculation
+vni.eff <- rnorm(30,0,0.001)
+## four-way interaction
+# bvni.eff <- rnorm(180,0,0.000001) # really is residual error since we do not have replication
+
+#### update design (really data) matrix with the levels of each interaction
+head(design)
+## 2s
+bv.int <- as.numeric(interaction(design[,1],design[,4]))
+bn.int <- as.numeric(interaction(design[,1],design[,6]))
+bi.int <- as.numeric(interaction(design[,1],design[,5]))
+vn.int <- as.numeric(interaction(design[,4],design[,6]))
+vi.int <- as.numeric(interaction(design[,4],design[,5]))
+ni.int <- as.numeric(interaction(design[,6],design[,5]))
+## 3s
+bvn.int <- as.numeric(interaction(design[,1],design[,4],design[,6]))
+bvi.int <- as.numeric(interaction(design[,4],design[,6]))
+bni.int <- as.numeric(interaction(design[,4],design[,5]))
+vni.int <- as.numeric(interaction(design[,6],design[,5]))
+
+## update data frame
+od <- data.frame(
+  "blk" = factor(design[,1]),
+  "vty" = factor(design[,4]),
+  "nit" = factor(design[,6]),
+  "ino" = factor(design[,5]),
+  "bv.int" = factor(bv.int),
+  "bn.int" = factor(bn.int),
+  "bi.int" = factor(bi.int),
+  "vn.int" = factor(vn.int),
+  "vi.int" = factor(vi.int),
+  "ni.int" = factor(ni.int),
+  "bvn.int" = factor(bvn.int),
+  "bvi.int" = factor(bvi.int),
+  "bni.int" = factor(bni.int),
+  "vni.int" = factor(vni.int)
+)
 
 # generate probablities
-logit.pi.vec <- rep(0,180) # logit(pi) = X * beta
-# block is col 1, variety is col 4, inoc is col 5, nit is col 6
-for(i in 1:180){
-  logit.pi.vec[i] <- mu + b.eff[design[i,1]] + v.eff[design[i,4]] + # 4 effects
-                          n.eff[design[i,6]] + i.eff[design[i,5]] + 
-                           b.eff[design[i,1]]*v.eff[design[i,4]] + # 6 two-way interactions
-                           b.eff[design[i,1]]*n.eff[design[i,6]] +
-                           b.eff[design[i,1]]*i.eff[design[i,5]] +
-                           v.eff[design[i,4]]*n.eff[design[i,6]] +
-                           v.eff[design[i,4]]*i.eff[design[i,5]] +
-                           n.eff[design[i,6]]*i.eff[design[i,5]] +
-                      b.eff[design[i,1]]*v.eff[design[i,4]]*n.eff[design[i,6]] + # 4 three-way interactions
-                      b.eff[design[i,1]]*v.eff[design[i,4]]*i.eff[design[i,5]] +
-                      b.eff[design[i,1]]*n.eff[design[i,6]]*i.eff[design[i,5]] +
-                      v.eff[design[i,4]]*n.eff[design[i,6]]*i.eff[design[i,5]] +
-     b.eff[design[i,1]]*v.eff[design[i,4]]*n.eff[design[i,6]]*i.eff[design[i,5]] # 1 four-way interaction
-}
+logit.pi.vec <- mu + b.eff[od[,1]] + v.eff[od[,2]] + n.eff[od[,3]] + i.eff[od[,4]] + 
+  bv.eff[od[,5]] + bn.eff[od[,6]] + bi.eff[od[,7]] + 
+  vn.eff[od[,8]] + vi.eff[od[,9]] + ni.eff[od[,10]] + 
+  bvn.eff[od[,11]] + bvi.eff[od[,12]] + bni.eff[od[,13]] + vni.eff[od[,14]]  
+
 # transform back to pi scale
 pi.vec <- apply(cbind(logit.pi.vec), 1, expit) # pi = expit(X * beta)
 # simulate some y's (leaves - out of 30 - that are contaminated)
@@ -98,10 +144,11 @@ set.seed(324)
 y.vec <- apply(cbind(pi.vec), 1, function(p) rbinom(1,30,p)) # y_i ~ Bin(30,pi_i)
 
 # attach to data set
-design$"infected" <- y.vec
-design$"total" <- rep(30,180)
-summary(design)
-names(design)
+od$"infected" <- y.vec
+od$"uninfected" <- 30 - y.vec
+# write.csv(od,"od.csv",row.names = FALSE)
+summary(od)
+names(od)
 
 # glmer
 require(lme4)
@@ -109,3 +156,8 @@ require(lme4)
 glm.mod <- glm(cbind(infected,total-infected) ~ (block + variety + inoc + nitrogen)^4,
                 data=design, family=binomial(link = "logit"))
 summary(glm.mod)
+
+
+### git commit -a -m "message"
+### git pull
+### git push
