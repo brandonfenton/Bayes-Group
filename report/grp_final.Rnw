@@ -384,6 +384,8 @@ As described in Section 6.1, the use of Bayesian analysis involves prior distrib
 
 A natural choice for many who implement a Bayesian analysis is to use what is called a noninformative prior. It is noninformative in the sense that is has the largest possible variance. This variance allows for the parameter to be from anywhere the distribution is defined. Another choice is to use a minimally informative prior. There are typically some natural limits as to what that parameter could be.
 
+There are some benefits to the choices of priors, such as conjugacy (but that doesn't come into play here as much).
+
 \subsection{The Bayesian Model}
 The model we have gone with is yada, yada, yada.
 
@@ -392,7 +394,17 @@ The model we have gone with is yada, yada, yada.
 The Normal probability distributions for each effect is a natural choice. Each centered at 0 as they will be adjustments on the overall mean. The half cauchy is a solid choice as argued by Gelman et al in a ``Weakly Informative Paper''. The spread of 3 allows for the effects to differ by an effect size of 18, which on the logit scale is enormous, as argued by some page in BDA3.
 
 \subsection{McSTANislaw McUlam}
+When conjugate priors are used we have the benefit of knowing the  distribution of the posterior. However, given the large capacity of parameters in the model we have fit and the prior distributions chosen, the posterior is not as straightforward. This would result in very intensive, and possibly lack of computing power, calculations to determine $p(y)$ -- the denominator in Section 6.1. However, there is a very convenient way around this issue. 
 
+Markov Chain Monte Carlo (MCMC) is the process of jumping around the parameter space in order to obtain draws from some target distribution (in this case the posterior distribution). As with all fields of mathematics and statistics we put our trust in the infinite; in that, it is the belief that if we were to sample enough times we will have converged on to a distribution that is the true posterior.
+
+R isn't the fastest of programming environments, and given the quantity of parameters we hope to estimate, it would run slowly. The way we can harness the power of MCMC will be through STAN, which adapts the code to run in C -- much faster. There are alternative out there, but this one is rather brilliant. STAN uses a type of MCMC algorithm called Hamiltonian something or another which jumps around the parameter space very efficiently, like a marble rolling up, down, and around a bowl.
+
+\subsection{Written model to STAN models}
+We can take the model written above and transform it into computing lingo for STAN.
+
+\subsection{Other compilers?}
+There is also BUGS, JAGS, and BayesGlm. There is a website to help you choose priors, maybe?
 
 \section{Posterior Inferences}
 
