@@ -256,36 +256,34 @@ od$"uninfected" <- 30 - y.vec
 
 Data were simulated from the model
 \begin{align*}
-&y_j &\sim \text{Bin}(30,\pi_j); \\
-&\text{logit}(\pi_j) &=
+y_j &\sim \text{Bin}(30,\pi_j), \ \text{for} \ j=1,2,\dots,180; \\
+\text{logit}(\pi_j)
 % OVERALL
-\mu % Batch 0: mean
-\\
-&\quad
+&= \mu % Batch 0: mean
 % BLOCK LEVEL
 + \beta^{(1)}_{b[j]} % Batch 1: Blk
-\\
-&\quad
 % ROW LEVEL
 + \beta^{(2)}_{v[j]} % Batch 2: Vty
 + \beta^{(3)}_{b[j],v[j]} % Batch 3: Blk * Vty
-\\
-&\quad
 % PLOT LEVEL
 + \beta^{(4)}_{i[j]} % Batch 4: Ino
 + \beta^{(5)}_{n[j]} % Batch 5: Nit
+\\
+&\quad
 + \beta^{(6)}_{b[j],i[j]} % Batch 6: Blk * Ino
 + \beta^{(7)}_{b[j],n[j]} % Batch 7: Blk * Nit
 + \beta^{(8)}_{i[j],n[j]} % Batch 8: Ino * Nit
 + \beta^{(9)}_{i[j],v[j]} % Batch 9: Ino * Vty
 + \beta^{(10)}_{n[j],v[j]} % Batch 10: Nit * Vty
+\\
+&\quad
 + \beta^{(11)}_{b[j],i[j],n[j]} % Batch 11: Blk * Ino * Nit
 + \beta^{(12)}_{b[j],i[j],v[j]} % Batch 12: Blk * Ino * Vty
 + \beta^{(13)}_{b[j],n[j],v[j]} % Batch 13: Blk * Nit * Vty
-+ \beta^{(14)}_{i[j],n[j],v[j]} % Batch 14: Ino * Nit * Vty
++ \beta^{(14)}_{i[j],n[j],v[j]}, % Batch 14: Ino * Nit * Vty
 % Maybe add the four-way?
 \end{align*}
-where \(j=1,2,\dots,180\) indexes the plots; \(b=1,2,\dots,6\) indexes
+where \(b=1,2,\dots,6\) indexes
 the blocks; \(i=1\) indicates non-inoculated status and \(i=2\) indicates
 inoculated status; \(n=1,2,3\) indicate early, mid, and late nitrogen
 application, respectively; \(v=1,2,\dots,5\) index.
@@ -426,7 +424,7 @@ The model we have gone with is yada, yada, yada.
 The Normal probability distributions for each effect is a natural choice. Each centered at 0 as they will be adjustments on the overall mean. The half cauchy is a solid choice as argued by Gelman et al in a ``Weakly Informative Paper''. The spread of 3 allows for the effects to differ by an effect size of 18, which on the logit scale is enormous, as argued by some page in BDA3.
 
 \subsection{McSTANislaw McUlam}
-When conjugate priors are used we have the benefit of knowing the  distribution of the posterior. However, given the large capacity of parameters in the model we have fit and the prior distributions chosen, the posterior is not as straightforward. This would result in very intensive, and possibly lack of computing power, calculations to determine $p(y)$ -- the denominator in Section 6.1. However, there is a very convenient way around this issue. 
+When conjugate priors are used we have the benefit of knowing the  distribution of the posterior. However, given the large capacity of parameters in the model we have fit and the prior distributions chosen, the posterior is not as straightforward. This would result in very intensive, and possibly lack of computing power, calculations to determine $p(y)$ -- the denominator in Section 6.1. However, there is a very convenient way around this issue.
 
 Markov Chain Monte Carlo (MCMC) is the process of jumping around the parameter space in order to obtain draws from some target distribution (in this case the posterior distribution). As with all fields of mathematics and statistics we put our trust in the infinite; in that, it is the belief that if we were to sample enough times we will have converged on to a distribution that is the true posterior.
 

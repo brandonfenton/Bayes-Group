@@ -414,18 +414,34 @@ abline(v = max(y), lty = 'dashed', lwd = 2, col = 'red')
 axis(1, 6:22)
 
 # Gelman ANOVA plot for superpop sds
-batches3 <- c('block', 'variety', 'nitrogen', 'inoculation',
-              'block * variety', 'block * nitrogen', 'block * inoculation',
-              'variety * nitrogen', 'variety * inoculation',
-              'nitrogen * inoculation',
-              'block * variety * nitrogen', 'block * variety * inoculation',
-              'block * nitrogen * inoculation',
-              'variety * nitrogen * inoculation')
-superpop.sds3 <- c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv",
-                   "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni",
-                   "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni")
-dfs3 <- c(n.b, n.v, n.n, n.i, n.bv, n.bn, n.bi, n.vn, n.vi,
-          n.ni, n.bvn, n.bvi, n.bni, n.vni) - 1
+batches3 <- c('block',
+              NA,
+              'variety',
+              'block * variety',
+              NA,
+              'inoculation',
+              'nitrogen',
+              NA,
+              'block * inoculation',
+              'block * nitrogen',
+              'inoculation * nitrogen',
+              'inoculation * variety',
+              'nitrogen * variety',
+              NA,
+              'block * inoculation * nitrogen',
+              'block * inoculation * variety',
+              'block * nitrogen * variety',
+              'inoculation * nitrogen * variety')
+superpop.sds3 <- c("sigma_b", NA,
+                   "sigma_v",
+                   "sigma_bv", NA,
+                   "sigma_i", "sigma_n", NA,
+                   "sigma_bi", "sigma_bn", "sigma_ni",
+                   "sigma_vi", "sigma_vn", NA,
+                   "sigma_bni", "sigma_bvi",
+                   "sigma_bvn", "sigma_vni")
+dfs3 <- c(n.b, NA, n.v, n.bv, NA, n.i, n.n, NA, n.bi, n.bn, n.ni,
+          n.vi, n.vn, NA, n.bni, n.bvi, n.bvn, n.vni) - 1
 anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
                            inner = 0.5, outer = 0.95,
                            width = c(6, 3, 25)){
@@ -455,13 +471,18 @@ anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
        mar = c(4.1, 0, 4.1, 1.1))
   axis(3)
   for(j in 1:length(sources)){
-    current <- unlist(extract(stan.fit, pars = sds[j]))
-    segments(x0 = quantile(current, c((1-outer)/2, (1-inner)/2)),
-             x1 = quantile(current, 1-c((1-outer)/2, (1-inner)/2)),
-             y0 = j, lwd = c(1, 3))
-    points(x = median(current), y = i, pch = 20)
+    if(!is.na(sources[j])){
+      current <- unlist(extract(stan.fit, pars = sds[j]))
+      segments(x0 = quantile(current, c((1-outer)/2, (1-inner)/2)),
+               x1 = quantile(current, 1-c((1-outer)/2, (1-inner)/2)),
+               y0 = j, lwd = c(1, 3))
+      points(x = median(current), y = i, pch = 20)
+    }
   }
 }
+
+x11()
+anova.superpop(od.stan3, batches3, superpop.sds3, dfs3, xlim = c(0, 10))
 
 ### git commit -am "message"
 ### git pull
