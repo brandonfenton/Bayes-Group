@@ -153,7 +153,7 @@ names(od)
 # glmer
 require(lme4)
 # start with glm to see if it runs
-glm.mod <- glm(cbind(infected,uninfected) ~ (blk+vty+nit+ino)^4, data=od, family=binomial(link = "logit"))
+glm.mod <- glmer(cbind(infected,uninfected) ~ (blk+vty+nit+ino)^3 + (1|blk/vty), data=od, family=binomial(link = "logit"))
 # glm.mod.dmb <- glm(cbind(infected,uninfected) ~ factor(blk)+factor(vty)+factor(nit)+factor(ino)
 #                +factor(bv.int)+factor(bn.int)+factor(bi.int)+factor(vn.int)+factor(vi.int)+factor(ni.int)
 #                +factor(bvn.int)+factor(bvi.int)+factor(bni.int)+factor(vni.int),

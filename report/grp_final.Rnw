@@ -284,9 +284,13 @@ One common approach to make inferences about split-plot experiments is to fit li
 In this case we are analyzing simulated count data, so a generalized linear mixed model is appropriate.  
 The \texttt{glm()} function from the \texttt{stats} package in the base R distribution was used to fit
 this model.
+
+As nitrogen and inoculation were pre-assigned to plots, they were treated as constants (in other words, fixed effects).  Block and variety levels can be considered as members of a larger population, 
 <<glmm>>=
 ## Fit the model using glm.
-glm.mod <- glm(cbind(infected,uninfected) ~ (blk+vty+nit+ino)^3, data=od, family=binomial(link = "logit"))
+glm.mod <- glmer(cbind(infected,uninfected) ~ (blk+vty+nit+ino)^3  + (1|blk),
+                 data=od, family=binomial(link = "logit"), 
+                 control=glmerControl(optimizer="bobyqa"))
 
 ## Produce summary output for the model.
 # summary(glm.mod)
