@@ -313,10 +313,10 @@ we can construct a probability distribution.
 
 
 \subsection{Likelihood Principle}
-The idea behind the likelihoodist approach to making inference stems from the Likelihood Principle. A likelihoodist believes that given a statistical (probability) model, all of the evidence in a sample relevant to model parameters is contained in the likelihood function. The benefit to using the maximum likelihood estimate (MLE) is that, assuming the model is correct and the sample size is large enough, then  the MLEs are unbiased, the standard deviations of the sampling distributions of the estimators are easy to fomulate, the estimators are about have relatively high precision, and the shapes of the sampling distribution are approximately normal (The Statistical Sleuth, page 611).
+The idea behind the likelihoodist approach to making inference stems from the Likelihood Principle. A likelihoodist believes that given a statistical (probability) model, all of the information in a sample relevant to model parameters is contained in the likelihood function. The benefit to using the maximum likelihood estimate (MLE) is that, assuming the model is correct, the sample size is large enough and the sampling method is unbiased, then  the MLEs are unbiased, the standard deviations of the sampling distributions of the estimators are easy to formulate, the estimators have relatively high precision, and the shapes of the sampling distribution are approximately normal (The Statistical Sleuth, page 611).
 
 \subsection{Likelihood to GLMER}
-In order to implement the likelihoodists approach to make inferences about split-plot experiments requires the use of linear mixed models.
+The likelihoodist approach to making inferences about split-plot experiments requires the use of linear mixed models.
 In this case we are analyzing simulated count data, so a generalized linear mixed model is appropriate.
 The \texttt{glmer()} function from the \texttt{lme4} package in the base R distribution was used to fit this model.
 
@@ -342,6 +342,7 @@ glm.mod <- glmer(cbind(infected,uninfected) ~ (nit+ino)^2 + (1|blk/vty),
 -binned residual plot
 \subsection{Arguments against Likelihood}
 \begin{itemize}
+While the likelihoodist approach can be powerful and elegant in its simplicity, it has some major shortcomings.
 \item bin, nbin have same lhoods
 \item mle sucks if the data aren't really representative
 \end{itemize}
