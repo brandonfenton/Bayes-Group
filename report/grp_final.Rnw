@@ -341,9 +341,9 @@ glm.mod <- glmer(cbind(infected,uninfected) ~ (nit+ino)^2 + (1|blk/vty),
 \subsection{Diagnostics}
 -binned residual plot
 \subsection{Arguments against Likelihood}
-While the likelihoodist approach can be powerful and elegant in its simplicity, it has some major shortcomings.  
+While the likelihoodist approach can be powerful and elegant in its simplicity, it has some major shortcomings.  Even if the model is correct, two different models can have the same likelihood function (as is the case for binomial and negative binomial distributions).  Similarly, even if the sample is sufficiently large and was collected in such a way that it should be representative, it is still possible to end up with a sample that is not representative of the population.  Either of these flaws could be tempered by including information about prior beliefs or domain-specific knowledge relevant to the model, but the likelihoodist approach does not provide a way to do so.
 \begin{itemize}
-\item bin, nbin have same lhoods
+\item bin, nbin have same lhoods \checkmark
 \item mle sucks if the data aren't really representative
 \end{itemize}
 
