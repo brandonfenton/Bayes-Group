@@ -21,6 +21,9 @@
 \setlength{\oddsidemargin}{0in}
 \setlength{\evensidemargin}{0in}
 \setlength{\topmargin}{-1.5cm}
+
+\setlength{\parskip}{5.5pt} % Skip half a line before and after each par
+\setlength{\parindent}{0pt} % No auto-indent
 % \def\fs{\footnotesize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
