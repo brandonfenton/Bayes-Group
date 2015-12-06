@@ -349,7 +349,12 @@ While the likelihoodist approach can be powerful and elegant in its simplicity, 
 
 \section{Bayesian Analysis}
 \subsection{Background}
-A Bayesian analysis involves finding a posterior distribution for
+Probability theory provides the basic property of conditional probability known as Bayes rule,
+\begin{align*}
+p(\theta|y) & = \frac{p(\theta,y)}{p(y)} \\
+& = \frac{p(\theta)p(y|\theta)}{p(y)}
+\end{align*}
+where $p(y) = \sum_{\theta} p(\theta)p(y|\theta)$ is summed over all possible values of $\theta$. A Bayesian analysis starts from Bayes rule. It involves finding a posterior distribution for
 \(\theta\), denoted \(p(\theta|y)\), from the likelihood \(p(y|\theta)\)
 and a prior distribution of \(\theta\), \(p(\theta)\). The posterior is
 found using the proportionality relationship,
@@ -367,7 +372,7 @@ In cases like this, the value of \(\theta\) that is most probable in
 posterior is the same as the maximum likelihood estimate, so it is common
 for Bayesian inference to appear similar to likelihood-based inference.
 It is important to remember, however, that a likelihood is not a probabilty
-statement about theta. A Bayesian posterior distribution is used to make
+statement about $\theta$. A Bayesian posterior distribution is used to make
 probability statements about \(\theta\), and a likelihood-based
 \emph{estimator} has a probability distribution, but the likelihood itself
 can only be used to compare possible \(\theta\) values in the context of
