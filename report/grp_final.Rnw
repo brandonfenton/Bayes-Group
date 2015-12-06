@@ -322,15 +322,17 @@ The \texttt{glmer()} function from the \texttt{lme4} package in the base R distr
 
 As nitrogen and inoculation were pre-assigned to plots, they are treated as constants (in other words, fixed effects).  Block and variety levels can be considered as members of a larger population, and as a result will be treated as a varying, or random, effect.
 <<glmm, eval=FALSE>>=
+## The lme4 package has the glmer function.
+require(lme4)
+  
 ## Fit the model using glm.
-glm.mod <- glmer(cbind(infected,uninfected) ~ (blk+vty+nit+ino)^3  + (1|blk),
+glm.mod <- glmer(cbind(infected,uninfected) ~ (nit+ino)^2 + (1|blk/vty),
                  data=od, family=binomial(link = "logit"),
                  control=glmerControl(optimizer="bobyqa"))
 
 ## Produce summary output for the model.
 # summary(glm.mod)
 # anova(glm.mod, test="Chisq")
-
 @
 
 \subsection{Results}
