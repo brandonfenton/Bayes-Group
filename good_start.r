@@ -338,26 +338,56 @@ sens <- lapply(scales, function(scale){
 #save(sens, file = 'sens.rdata')
 load('sens.rdata')
 
-x11()
+sensitivity.plot <- function(stan.list, pars, vals, xmin = 0, xmax = 1,
+                             inner = 0.5, outer = 0.95,
+                             ylab = 'Hyperparameter Value', ...){
+# Creates a caterpillar plot comparing posterior intervals for each of
+# several parameters for several values of one hyperparameter.
+#  stan.list  A list of stan_fit objects
+#  pars       Character vector of the parameters being examined
+#  vals       Numeric vector of hyperparameter values that were used
+#  xmin       Numeric (vector) of lower xlim values for each plot
+#  xmax       Numeric (vector) of upper xlim values for each plot
+#  inner      Confidence lever for outer interval
+#  outer      Confidence level for outer interval
+  if(length(xmin)<length(pars)) xmin <- rep(xmin, length(pars))
+  if(length(xmax)<length(pars)) xmax <- rep(xmax, length(pars))
+  for(j in 1:length(pars)){
+    plot(NULL, xlim = c(xmin[j], xmax[j]), ylim = c(length(sens), 1),
+         main = paste('Sensitivity Plot of', params[j]),
+         xlab = params[j], ylab = ylab, yaxt = 'n', ...)
+    axis(2, at = 1:length(sens), labels = scales, las = 1)
+    for(i in 1:length(sens)){
+      current <- unlist(extract(sens[[i]], pars = params[j]))
+      segments(x0 = quantile(current, c((1-outer)/2, (1-inner)/2)),
+               x1 = quantile(current, 1-c((1-outer)/2, (1-inner)/2)),
+               y0 = i, lwd = c(1, 3))
+      points(x = median(current), y = i, pch = 20)
+    }
+  }
+}
+
 params <- c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv",
             "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni",
             "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni")
 xlims <- c(1, 1, 8, 20, 1, 1, 1, 1, 1, 3, 1, 1, 1, 5)
+x11()
 par(mfrow = c(3, 5))
-for(j in 1:length(params)){
-  plot(NULL, xlim = c(0, xlims[j]), ylim = c(length(sens), 1),
-       main = paste('Comparison of', params[j], 'Prior Scales'),
-       xlab = params[j], ylab = 'Prior Scale', yaxt = 'n')
-  axis(2, at = 1:length(sens), labels = scales, las = 1)
-  for(i in 1:length(sens)){
-    sig.current <- unlist(extract(sens[[i]], pars = params[j]))
-    segments(x0 = quantile(sig.current, c(0.025, 0.25)),
-             x1 = quantile(sig.current, c(0.975, 0.75)),
-             y0 = i, lwd = c(1, 3))
-    points(x = median(sig.current), y = i, pch = 20)
-  }
-}
+sensitivity.plot(sens, params, scales, xmax = xlims, ylab = 'Prior Scale')
 
+#for(j in 1:length(params)){
+#  plot(NULL, xlim = c(0, xlims[j]), ylim = c(length(sens), 1),
+#       main = paste('Comparison of', params[j], 'Prior Scales'),
+#       xlab = params[j], ylab = 'Prior Scale', yaxt = 'n')
+#  axis(2, at = 1:length(sens), labels = scales, las = 1)
+#  for(i in 1:length(sens)){
+#    sig.current <- unlist(extract(sens[[i]], pars = params[j]))
+#    segments(x0 = quantile(sig.current, c(0.025, 0.25)),
+#             x1 = quantile(sig.current, c(0.975, 0.75)),
+#             y0 = i, lwd = c(1, 3))
+#    points(x = median(sig.current), y = i, pch = 20)
+#  }
+#}
 
 ### git commit -am "message"
 ### git pull
