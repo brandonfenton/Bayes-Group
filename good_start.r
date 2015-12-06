@@ -266,7 +266,7 @@ y <- od$infected
 
 
 
-#### possibly useless
+#### not at all useless
 od.stan.data <- list(num_obs=n.o,
                      m=m,
                      cauchysd=cauchyscale,
@@ -390,6 +390,28 @@ sensitivity.plot(sens, params, scales, xmax = xlims, ylab = 'Prior Scale')
 #    points(x = median(sig.current), y = i, pch = 20)
 #  }
 #}
+
+# Get the one Stan fit where we used a scale of 3
+od.stan3 <- sens[[3]]
+
+# Do some posterior predictin'
+p.stan3 <- extract(od.stan3, pars = 'p')$p
+y.pred3 <- apply(p.stan3, c(1, 2), function(p){return(rbinom(1, m, p))})
+
+n.zero.pred3 <- apply(y.pred3, 1, function(x){return(sum(x==0))})
+plot(table(n.zero.pred3)/sum(table(n.zero.pred3)),
+     lwd = 3, xlim = c(15, 55), xaxt = 'n',
+     main = 'Predicted Zero Counts',
+     xlab = 'Number of Zeros', ylab = '')
+abline(v = sum(y==0), lty = 'dashed', lwd = 2, col = 'red')
+axis(1, seq(15, 55, 5))
+
+max.pred3 <- apply(y.pred3, 1, max)
+plot(table(max.pred3), xlim = c(6, 22), lwd = 3, xaxt = 'n',
+     main = 'Predicted Maxima',
+     xlab = 'Maximum', ylab = '')
+abline(v = max(y), lty = 'dashed', lwd = 2, col = 'red')
+axis(1, 6:22)
 
 ### git commit -am "message"
 ### git pull
