@@ -98,13 +98,15 @@ require(xtable)
 
 
 \section{Introduction}
-Bayesian inference is becoming a popular topic as of late; such is the case for fields like Ecology. However, the practice of Bayesian data analyis is rarely utilized in the Consulting Seminar for clients because few are familiar with the methodology. We hope to illustrate that, while Bayesian data analysis may be less familiar than its likelihood or frequentist counterparts, it can provide results when other approaches do not. Additionally, it is our goal to provide easy to understand implementations of Bayesian inference. This report will implement both a likelihoodist and Bayesian approach in order to compare results.
+Bayesian inference is becoming a popular topic as of late; such is the case for fields like Ecology. However, the practice of Bayesian data analysis is rarely utilized in the Consulting Seminar for clients because few are familiar with the methodology. We hope to illustrate that, while Bayesian data analysis may be less familiar than its likelihood or frequentist counterparts, it can provide results when other approaches do not. Additionally, it is our goal to provide easy to understand implementations of Bayesian inference. This report will implement both a likelihoodist and Bayesian approach in order to compare results.
 
 \section{Objectives}
 Researchers are interested in the effect of the timing of a nitrogen treatment on the rate of Wheat Streak Mosaic Virus infection for several varieties of winter wheat. It is also of interest to see whether the strength of the effect differs between different varieties, or between environments where the virus is present in high levels versus low level. In this report, we will demonstrate the Analysis of Variance to determine which variables and interaction are the most important in explaining variation in infection rate.
 
 \section{Design}
-In total there were six blocks. In each block there were five rows, each of which contained one variety of wheat. In each row there were six plots, each containing a unique combination of nitrogen application time (early, mid, and late) and inoculation status (inoculated or not). In total there were 180 plots.  From each plot, 30 leaves were collected haphazardly and their infection statuses were recorded.
+The experiment was performed in six blocks. Each block contained five rows, with one of five varieties of wheat randomly assigned to each row. Each row was split into six plots, and each plot was assigned a unique combination of nitrogen application time (early, mid, and late) and inoculation status (inoculated or not). Infected plants were transplanted into the inoculated plots so that the inoculated plots were known to have an elevated virus presence. Non-inoculated plots were assumed to have the virus present in a naturally-occurring level.
+
+In total, 180 plots were observed. From each plot, 30 leaves were collected haphazardly and the infection status was recorded for each. These data were aggregated to the plot level so that the response variable was the number of infected plants out of 30.
 
 \section{Simulation}
 <<data_simulation>>=
@@ -287,7 +289,7 @@ function of \(\theta\).
 
 Since \(p(y|\theta)\) is the probability of observing \(y\) for a given
 \(\theta\), a \(\theta\) where \(p(y|\theta)\) is large is more
-consistent with the obeserved data than a \(\theta\) value that makes
+consistent with the observed data than a \(\theta\) value that makes
 \(p(y|\theta)\) small. Then a reasonable approach to estimating
 \(\theta\) is to find the value of \(\theta\) that maximizes
 \(p(y|\theta)\) for the observed \(y\).
@@ -303,26 +305,25 @@ we can construct a probability distribution.
 
 
 \subsection{Likelihood Principle}
-The idea behind the likelihoodist approach to making inference stems from the Likelihood Principle. A likelihoodist believes that given a statistical (probability) model, all of the evidence in a sample relevant to model parameters is contained in the likelihood function. The benefit to using the maximum likelihood estimate (MLE) is that, assuming the model is correct and the sample size is large enough, then  the MLEs are unbiased, the standard deviations of the sampling distributions of the estimators are easy to fomulate, the estimators are about have relatively high precision, and the shapes of the sampling distribution are approximately normal (The Statistical Sleuth, page 611).
+The idea behind the likelihoodist approach to making inference stems from the Likelihood Principle. A likelihoodist believes that given a statistical (probability) model, all of the evidence in a sample relevant to model parameters is contained in the likelihood function. The benefit to using the maximum likelihood estimate (MLE) is that, assuming the model is correct and the sample size is large enough, then  the MLEs are unbiased, the standard deviations of the sampling distributions of the estimators are easy to formulate, the estimators are about have relatively high precision, and the shapes of the sampling distribution are approximately normal (The Statistical Sleuth, page 611).
 
-\subsection{Likelihood to GLMER}
-In order to implement the likelihoodists approach to make inferences about split-plot experiments requires the use of linear mixed models.
+\subsection{Intro to GLMM approach}
+One common approach to make inferences about split-plot experiments is to fit linear mixed models.
 In this case we are analyzing simulated count data, so a generalized linear mixed model is appropriate.
-The \texttt{glmer()} function from the \texttt{lme4} package in the base R distribution was used to fit this model.
+The \texttt{glm()} function from the \texttt{stats} package in the base R distribution was used to fit
+this model.
 
-As nitrogen and inoculation were pre-assigned to plots, they are treated as constants (in other words, fixed effects).  Block and variety levels can be considered as members of a larger population, and as a result will be treated as a varying, or random, effect.
+As nitrogen and inoculation were pre-assigned to plots, they were treated as constants (in other words, fixed effects).  Block and variety levels can be considered as members of a larger population, and as a result will be treated as a varying, or random, effect.
 <<glmm, eval=FALSE>>=
-## The lme4 package has the glmer function.
-require(lme4)
-  
 ## Fit the model using glm.
-glm.mod <- glmer(cbind(infected,uninfected) ~ (nit+ino)^2 + (1|blk/vty),
+glm.mod <- glmer(cbind(infected,uninfected) ~ (blk+vty+nit+ino)^3  + (1|blk),
                  data=od, family=binomial(link = "logit"),
                  control=glmerControl(optimizer="bobyqa"))
 
 ## Produce summary output for the model.
 # summary(glm.mod)
 # anova(glm.mod, test="Chisq")
+
 @
 
 \subsection{Results}
@@ -355,7 +356,7 @@ p(\theta|y)\propto c\times p(y|\theta)\propto p(y|\theta)\text{.}
 In cases like this, the value of \(\theta\) that is most probable in
 posterior is the same as the maximum likelihood estimate, so it is common
 for Bayesian inference to appear similar to likelihood-based inference.
-It is important to remember, however, that a likelihood is not a probabilty
+It is important to remember, however, that a likelihood is not a probability
 statement about theta. A Bayesian posterior distribution is used to make
 probability statements about \(\theta\), and a likelihood-based
 \emph{estimator} has a probability distribution, but the likelihood itself
