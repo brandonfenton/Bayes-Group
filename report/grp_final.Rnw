@@ -278,6 +278,8 @@ plot(table(y.vec), ylab = "", xlab = "")
 \caption{The number of the 180 simulated plots that had 0 leaves, 1 leaf, $\hdots$, 11 leaves infected out of the 30 collected from each plot.}
 \end{figure}
 
+\newpage 
+
 \section{Generalized Linear (Mixed) Model}
 \subsection{Intro to GLMM approach}
 One common approach to make inferences about split-plot experiments is to fit linear mixed models.
@@ -285,8 +287,8 @@ In this case we are analyzing simulated count data, so a generalized linear mixe
 The \texttt{glm()} function from the \texttt{stats} package in the base R distribution was used to fit
 this model.
 
-As nitrogen and inoculation were pre-assigned to plots, they were treated as constants (in other words, fixed effects).  Block and variety levels can be considered as members of a larger population, 
-<<glmm>>=
+As nitrogen and inoculation were pre-assigned to plots, they were treated as constants (in other words, fixed effects).  Block and variety levels can be considered as members of a larger population, and as a result will be treated as a varying, or random, effect.
+<<glmm, eval=FALSE>>=
 ## Fit the model using glm.
 glm.mod <- glmer(cbind(infected,uninfected) ~ (blk+vty+nit+ino)^3  + (1|blk),
                  data=od, family=binomial(link = "logit"), 
@@ -298,8 +300,16 @@ glm.mod <- glmer(cbind(infected,uninfected) ~ (blk+vty+nit+ino)^3  + (1|blk),
 
 @
 
+\subsection{Results}
+
+\subsection{Diagnostics}
 
 \section{Bayesian Background}
+\subsection{Likelihood}
+
+
+\subsection{Arguments against Likelihood}
+
 \subsection{Why Choose Bayesian}
 
 
@@ -310,8 +320,8 @@ glm.mod <- glmer(cbind(infected,uninfected) ~ (blk+vty+nit+ino)^3  + (1|blk),
 
 Ideas:
 \begin{itemize}
-\item counting number of zeros\\
-\item counting number of plots with a higher count than the maximum in the data\\
+\item counting number of zeros
+\item counting number of plots with a higher count than the maximum in the data
 \end{itemize}
 
 
