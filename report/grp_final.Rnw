@@ -9,6 +9,7 @@
 %\usepackage{listings}
 \usepackage{enumitem} % for [label=]
 \usepackage{amsmath}  % math symbols and such
+\usepackage{amssymb}
 %\usepackage{lastpage} % for page numerbering
 \usepackage{color}
 \usepackage{multirow}
@@ -281,30 +282,6 @@ plot(table(y.vec), ylab = "", xlab = "")
 \newpage 
 
 \section{Generalized Linear (Mixed) Model}
-\subsection{Intro to GLMM approach}
-One common approach to make inferences about split-plot experiments is to fit linear mixed models.
-In this case we are analyzing simulated count data, so a generalized linear mixed model is appropriate.  
-The \texttt{glm()} function from the \texttt{stats} package in the base R distribution was used to fit
-this model.
-
-As nitrogen and inoculation were pre-assigned to plots, they were treated as constants (in other words, fixed effects).  Block and variety levels can be considered as members of a larger population, and as a result will be treated as a varying, or random, effect.
-<<glmm, eval=FALSE>>=
-## Fit the model using glm.
-glm.mod <- glmer(cbind(infected,uninfected) ~ (blk+vty+nit+ino)^3  + (1|blk),
-                 data=od, family=binomial(link = "logit"), 
-                 control=glmerControl(optimizer="bobyqa"))
-
-## Produce summary output for the model.
-# summary(glm.mod)
-# anova(glm.mod, test="Chisq")
-
-@
-
-\subsection{Results}
-
-\subsection{Diagnostics}
-
-\section{Bayesian Background}
 \subsection{Likelihood}
 The likelihood function provides a relative measure of how well a possible
 value of the parameter \(\theta\) fits with the observed data \(y\), and
@@ -322,42 +299,14 @@ consistent with the obeserved data than a \(\theta\) value that makes
 \(\theta\) is to find the value of \(\theta\) that maximizes
 \(p(y|\theta)\) for the observed \(y\).
 
-In practice, we often take the natural logarithm of the likelhood. This
-log-likelihood is maximized by the same \(\theta\) that maximizes the
-likelihood; this is because the logarithm function is strictly increasing.
-This means that if \(a\) is bigger than \(b\) then \(\log(a)\) is greater
-than \(\log(b)\). For a more concrete example, see the figure on the
-next page and consider the eleven points in the left panel. The diamond
-without a cross has the position farthest above the horizontal axis.
-The figure on the right shows the points after log-transforming their
-vertical positions.
 
-
-<<logex,echo=FALSE,out.height='0.3\\linewidth',fig.height=3>>=
-set.seed(231486)
-points <- runif(11, 0, 150)
-par(mfrow = c(1, 2), mar = c(2.1, 4.1, 3.1, 2.1))
-plot(points, pch = 0:10, ylim = c(0, 150),
-     xlab = '', ylab = '', xaxt = 'n', main = 'Eleven Values')
-plot(log(points), pch = 0:10, ylim = c(0, 5),
-     xlab = '', ylab = '', xaxt = 'n',
-     main = 'Natural Logarithm of the Eleven Values')
-@
-
-Notice that, after taking logarithms, the values along the vertical axis
-have changed but the order of the points from highest to lowest has
-stayed the same. The diamond without a cross is again the highest point
-above the horizontal axis. Also, the log-tranformed points are less
-spread out than the original points. This decrease in spread often happens
-and makes it easier for a computer to find the maximum.
-
-Keep in mind that the likelihood function depends on the particular data
-that were observed. We could very well have collected the data \(y'\)
-instead of \(y\), and then our likelihood function would be
+Note that the likelihood function depends on the particular data
+that were observed. The data \(y'\) could very well have been collected
+instead of \(y\), and then the likelihood function would be
 \(p(y'|\theta)\), which might be maximized by a different \(\theta\) value
 than the \(\theta\) value the maximizes \(p(y|\theta)\). If we consider
 how this estimate of \(\theta\) will vary between different samples,
-we can construct a probability distribution!
+we can construct a probability distribution.
 
 A Bayesian analysis involves finding a posterior distribution for
 \(\theta\), denoted \(p(\theta|y)\), from the likelihood \(p(y|\theta)\)
@@ -379,23 +328,58 @@ for Bayesian inference to appear similar to likelihood-based inference.
 It is important to remember, however, that a likelihood is not a probabilty
 statement about theta. A Bayesian posterior distribution is used to make
 probability statements about \(\theta\), and a likelihood-based
-\emph{estimate} has a probability distribution, but the likelihood itself
+\emph{estimator} has a probability distribution, but the likelihood itself
 can only be used to compare possible \(\theta\) values in the context of
 one set of observed data.
+\subsection{Intro to GLMM approach}
+One common approach to make inferences about split-plot experiments is to fit linear mixed models.
+In this case we are analyzing simulated count data, so a generalized linear mixed model is appropriate.  
+The \texttt{glm()} function from the \texttt{stats} package in the base R distribution was used to fit
+this model.
+
+As nitrogen and inoculation were pre-assigned to plots, they were treated as constants (in other words, fixed effects).  Block and variety levels can be considered as members of a larger population, and as a result will be treated as a varying, or random, effect.
+<<glmm, eval=FALSE>>=
+## Fit the model using glm.
+glm.mod <- glmer(cbind(infected,uninfected) ~ (blk+vty+nit+ino)^3  + (1|blk),
+                 data=od, family=binomial(link = "logit"), 
+                 control=glmerControl(optimizer="bobyqa"))
+
+## Produce summary output for the model.
+# summary(glm.mod)
+# anova(glm.mod, test="Chisq")
+
+@
+
+\subsection{Results}
+-caterpillar plot?
+-
+\subsection{Diagnostics}
+-binned residual plot
 \subsection{Arguments against Likelihood}
+-bin, nbin have same lhoods
+-mle sucks if the data aren't really representative
+
+
+\section{Bayesian Analysis}
+\subsection{Background}
+
 
 \subsection{Why Choose Bayesian}
 
+\subsection{STAN}
 
 \section{Posterior Inferences}
 
 
 \section{Posterior Predictive Check}
-
+-
 Ideas:
 \begin{itemize}
-\item counting number of zeros
-\item counting number of plots with a higher count than the maximum in the data
+\item counting number of zeros \checkmark
+\item maximum \checkmark
+\item pearson residuals
+\item RMS density/hist
+\item $y_{pred}$ versus $y_{sim}$ scatterplot
 \end{itemize}
 
 
