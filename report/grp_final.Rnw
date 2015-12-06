@@ -308,29 +308,7 @@ than the \(\theta\) value the maximizes \(p(y|\theta)\). If we consider
 how this estimate of \(\theta\) will vary between different samples,
 we can construct a probability distribution.
 
-A Bayesian analysis involves finding a posterior distribution for
-\(\theta\), denoted \(p(\theta|y)\), from the likelihood \(p(y|\theta)\)
-and a prior distribution of \(\theta\), \(p(\theta)\). The posterior is
-found using the proportionality relationship,
-\begin{align*}
-p(\theta|y)\propto p(\theta)\times p(y|\theta)\text{.}
-\end{align*}
-Often, analysts assume that all values of \(\theta\) are approximately
-equally probable, and so the prior distribution is constant:
-\(p(\theta)=c\). Then the posterior distribution is proportional to the
-likelihood,
-\begin{align*}
-p(\theta|y)\propto c\times p(y|\theta)\propto p(y|\theta)\text{.}
-\end{align*}
-In cases like this, the value of \(\theta\) that is most probable in
-posterior is the same as the maximum likelihood estimate, so it is common
-for Bayesian inference to appear similar to likelihood-based inference.
-It is important to remember, however, that a likelihood is not a probabilty
-statement about theta. A Bayesian posterior distribution is used to make
-probability statements about \(\theta\), and a likelihood-based
-\emph{estimator} has a probability distribution, but the likelihood itself
-can only be used to compare possible \(\theta\) values in the context of
-one set of observed data.
+
 \subsection{Intro to GLMM approach}
 One common approach to make inferences about split-plot experiments is to fit linear mixed models.
 In this case we are analyzing simulated count data, so a generalized linear mixed model is appropriate.  
@@ -356,15 +334,40 @@ glm.mod <- glmer(cbind(infected,uninfected) ~ (blk+vty+nit+ino)^3  + (1|blk),
 \subsection{Diagnostics}
 -binned residual plot
 \subsection{Arguments against Likelihood}
--bin, nbin have same lhoods
--mle sucks if the data aren't really representative
-
+\begin{itemize}
+\item bin, nbin have same lhoods
+\item mle sucks if the data aren't really representative
+\end{itemize}
 
 \section{Bayesian Analysis}
 \subsection{Background}
-
+A Bayesian analysis involves finding a posterior distribution for
+\(\theta\), denoted \(p(\theta|y)\), from the likelihood \(p(y|\theta)\)
+and a prior distribution of \(\theta\), \(p(\theta)\). The posterior is
+found using the proportionality relationship,
+\begin{align*}
+p(\theta|y)\propto p(\theta)\times p(y|\theta)\text{.}
+\end{align*}
+Often, analysts assume that all values of \(\theta\) are approximately
+equally probable, and so the prior distribution is constant:
+\(p(\theta)=c\). Then the posterior distribution is proportional to the
+likelihood,
+\begin{align*}
+p(\theta|y)\propto c\times p(y|\theta)\propto p(y|\theta)\text{.}
+\end{align*}
+In cases like this, the value of \(\theta\) that is most probable in
+posterior is the same as the maximum likelihood estimate, so it is common
+for Bayesian inference to appear similar to likelihood-based inference.
+It is important to remember, however, that a likelihood is not a probabilty
+statement about theta. A Bayesian posterior distribution is used to make
+probability statements about \(\theta\), and a likelihood-based
+\emph{estimator} has a probability distribution, but the likelihood itself
+can only be used to compare possible \(\theta\) values in the context of
+one set of observed data.
 
 \subsection{Why Choose Bayesian}
+
+\subsection{Priors}
 
 \subsection{STAN}
 
