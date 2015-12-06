@@ -101,20 +101,12 @@ require(xtable)
 Bayesian inference is becoming a popular topic as of late; such is the case for fields like Ecology. However, the practice of Bayesian data analyis is rarely utilized in the Consulting Seminar for clients because few are familiar with the methodology. We hope to illustrate that, while Bayesian data analysis may be less familiar than its likelihood or frequentist counterparts, it can provide results when other approaches do not. Additionally, it is our goal to provide easy to understand implementations of Bayesian inference. This report will implement both a likelihoodist and Bayesian approach in order to compare results.
 
 \section{Objectives}
-Nar is interested in the effect that variety, application time of nitrogen, and inoculation have on the probability of virus infection in Winter Wheat. Of primary interest is the effect of application time of nitrogen, as well as assessing evidence for all possible two and three way interactions. The simplest possible model, to describe the effects of the above variables, is desirable. Throughout this report, it is our desire to address the following questions:
-\begin{itemize}
-\item Is there evidence that the interaction between time of nitrogen application and variety of wheat differs between plots where plants were inoculated or not?
-
-\item Is there evidence that the time of nitrogen application varies across varieties of wheat? Additionally, is there evidence that the time of nitrogen application differs between plots where plants were inoculated or not?
-
-\item Is there evidence that the variety of wheat differs between plots where plants were inoculated or not?
-
-\item Conditional on the results to the above questions, how do we appropriately describe the estimated effects for variety, nitrogen application time, and inoculation on the
-probability of virus infection?
-\end{itemize}
+Researchers are interested in the effect of the timing of a nitrogen treatment on the rate of Wheat Streak Mosaic Virus infection for several varieties of winter wheat. It is also of interest to see whether the strength of the effect differs between different varieties, or between environments where the virus is present in high levels versus low level. In this report, we will demonstrate the Analysis of Variance to determine which variables and interaction are the most important in explaining variation in infection rate.
 
 \section{Design}
-  In total there were six blocks. In each block there were five rows, each of which contained one variety of wheat. In each row there were six plots, each containing a unique combination of nitrogen application time and inoculation status (inoculated or not). In total there were 180 plots.  From each plot, 30 leaves were collected haphazardly and their infection statuses were recorded.
+The experiment was performed in six blocks. Each block contained five rows, with one of five varieties of wheat randomly assigned to each row. Each row was split into six plots, and each plot was assigned a unique combination of nitrogen application time (early, mid, and late) and inoculation status (inoculated or not). Infected plants were transplanted into the inoculated plots so that the inoculated plots were known to have an elevated virus presence. Non-inoculated plots were assumed to have the virus present in a naturally-occurring level.
+
+In total, 180 plots were observed. From each plot, 30 leaves were collected haphazardly and the infection status was recorded for each. These data were aggregated to the plot level so that the response variable was the number of infected plants out of 30.
 
 \section{Simulation}
 <<data_simulation>>=
@@ -324,7 +316,7 @@ As nitrogen and inoculation were pre-assigned to plots, they are treated as cons
 <<glmm, eval=FALSE>>=
 ## The lme4 package has the glmer function.
 require(lme4)
-  
+
 ## Fit the model using glm.
 glm.mod <- glmer(cbind(infected,uninfected) ~ (nit+ino)^2 + (1|blk/vty),
                  data=od, family=binomial(link = "logit"),
@@ -379,7 +371,7 @@ can only be used to compare possible \(\theta\) values in the context of
 one set of observed data.
 
 \subsection{Why Choose Bayesian}
-There are many advantages to performing a Bayesian analysis. A big one in this case, is its ability to provide meaningful results. MLE at edge of parameter space. 
+There are many advantages to performing a Bayesian analysis. A big one in this case, is its ability to provide meaningful results. MLE at edge of parameter space.
 
 The likelihoodist approach provides a point estimate; a Bayesian approach provides a probability distribution.
 
@@ -390,10 +382,10 @@ It can also come in handy when not much data is provided. {\it This might not be
 \subsection{Priors}
 As described in Section 6.1, the use of Bayesian analysis involves prior distributions. In practice, not much is known as to what distribution the parameters, themselves, actually follow. But, hey, we don't actually need to know! We ultimately want the data to make the most impact on the posterior distribution we obtain, so our decisions on what priors we use are really just to get the ball rolling, so to speak.
 
-A natural choice for many who implement a Bayesian analysis is to use what is called a noninformative prior. It is noninformative in the sense that is has the largest possible variance. This variance allows for the parameter to be from anywhere the distribution is defined. Another choice is to use a minimally informative prior. There are typically some natural limits as to what that parameter could be. 
+A natural choice for many who implement a Bayesian analysis is to use what is called a noninformative prior. It is noninformative in the sense that is has the largest possible variance. This variance allows for the parameter to be from anywhere the distribution is defined. Another choice is to use a minimally informative prior. There are typically some natural limits as to what that parameter could be.
 
 \subsection{The Bayesian Model}
-The model we have gone with is yada, yada, yada. 
+The model we have gone with is yada, yada, yada.
 
 {\it Discuss the priors we chose here or create a subsection?}
 
