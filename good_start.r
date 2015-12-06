@@ -413,6 +413,56 @@ plot(table(max.pred3), xlim = c(6, 22), lwd = 3, xaxt = 'n',
 abline(v = max(y), lty = 'dashed', lwd = 2, col = 'red')
 axis(1, 6:22)
 
+# Gelman ANOVA plot for superpop sds
+batches3 <- c('block', 'variety', 'nitrogen', 'inoculation',
+              'block * variety', 'block * nitrogen', 'block * inoculation',
+              'variety * nitrogen', 'variety * inoculation',
+              'nitrogen * inoculation',
+              'block * variety * nitrogen', 'block * variety * inoculation',
+              'block * nitrogen * inoculation',
+              'variety * nitrogen * inoculation')
+superpop.sds3 <- c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv",
+                   "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni",
+                   "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni")
+dfs3 <- c(n.b, n.v, n.n, n.i, n.bv, n.bn, n.bi, n.vn, n.vi,
+          n.ni, n.bvn, n.bvi, n.bni, n.vni) - 1
+anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
+                           inner = 0.5, outer = 0.95,
+                           width = c(6, 3, 25)){
+# Creates a caterpillar plot comparing posterior intervals for each of
+# several parameters for several values of one hyperparameter.
+#  stan.fit  A stan_fit objects
+#  sources   Character vector of batches being analyzed
+#  sds       Character vector of the scale parameters being analyzed
+#  dfs       Numeric vector of degrees of freedom for each batch
+#  inner     Confidence lever for outer interval
+#  outer     Confidence level for outer interval
+#  width     Numeric vector of widths to send to layout()
+  layout(matrix(1:3, nrow = 1), width = width)
+  # Sources
+  plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'Sources',
+       xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE,
+       mar = c(4.1, 1.1, 4.1, 0.1))
+  text(x = 1, y = 1:length(sources), labels = sources, pos = 2, offset = 0)
+  # dfs
+  plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'df',
+       xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE,
+       mar = c(4.1, 0, 4.1, 0.1))
+  text(x = 1, y = 1:length(sources), labels = dfs, pos = 2, offset = 0)
+  # SDs
+  plot(NULL, xlim = xlim, ylim = c(length(sds), 1),
+       main = 'Estimated sd of Effects', xlab = '', ylab = '', yaxt = 'n',
+       mar = c(4.1, 0, 4.1, 1.1))
+  axis(3)
+  for(j in 1:length(sources)){
+    current <- unlist(extract(stan.fit, pars = sds[j]))
+    segments(x0 = quantile(current, c((1-outer)/2, (1-inner)/2)),
+             x1 = quantile(current, 1-c((1-outer)/2, (1-inner)/2)),
+             y0 = j, lwd = c(1, 3))
+    points(x = median(current), y = i, pch = 20)
+  }
+}
+
 ### git commit -am "message"
 ### git pull
 ### git push
