@@ -223,7 +223,7 @@ require(rstan)
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
 ## Doug's Working Directory
-setwd("C:/Users/dsand_000/Desktop/Stats/S532/gitProj/Bayes-Group")
+# setwd("C:/Users/dsand_000/Desktop/Stats/S532/gitProj/Bayes-Group")
 ### set up data to send in to STAN
 # sample sizes
 n.o <- 180
@@ -412,6 +412,9 @@ plot(table(max.pred3), xlim = c(6, 22), lwd = 3, xaxt = 'n',
      xlab = 'Maximum', ylab = '')
 abline(v = max(y), lty = 'dashed', lwd = 2, col = 'red')
 axis(1, 6:22)
+
+plot(x=y, y=y, type="n")
+
 
 # Gelman ANOVA plot for superpop sds
 batches3 <- c('block', 'variety', 'nitrogen', 'inoculation',
