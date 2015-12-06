@@ -278,9 +278,26 @@ plot(table(y.vec), ylab = "", xlab = "")
 \caption{The number of the 180 simulated plots that had 0 leaves, 1 leaf, $\hdots$, 11 leaves infected out of the 30 collected from each plot.}
 \end{figure}
 
+\section{Generalized Linear (Mixed) Model}
+\subsection{Intro to GLMM approach}
+One common approach to make inferences about split-plot experiments is to fit linear mixed models.
+In this case we are analyzing simulated count data, so a generalized linear mixed model is appropriate.  
+The \texttt{glm()} function from the \texttt{stats} package in the base R distribution was used to fit
+this model.
+<<glmm>>=
+## Fit the model using glm.
+glm.mod <- glm(cbind(infected,uninfected) ~ (blk+vty+nit+ino)^3, data=od, family=binomial(link = "logit"))
+
+## Produce summary output for the model.
+# summary(glm.mod)
+# anova(glm.mod, test="Chisq")
+
+@
+
+
 \section{Bayesian Background}
 \subsection{Why Choose Bayesian}
-Don't ask Kenny.
+
 
 \section{Posterior Inferences}
 
@@ -293,7 +310,7 @@ Ideas:
 \item counting number of plots with a higher count than the maximum in the data\\
 \end{itemize}
 
-\section{Generalized Linear (Mixed) Model}
+
 \section{Bayesian ANOVA}
 \section{Model Comparison}
 
