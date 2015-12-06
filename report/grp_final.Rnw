@@ -341,8 +341,8 @@ glm.mod <- glmer(cbind(infected,uninfected) ~ (nit+ino)^2 + (1|blk/vty),
 \subsection{Diagnostics}
 -binned residual plot
 \subsection{Arguments against Likelihood}
+While the likelihoodist approach can be powerful and elegant in its simplicity, it has some major shortcomings.  
 \begin{itemize}
-While the likelihoodist approach can be powerful and elegant in its simplicity, it has some major shortcomings.
 \item bin, nbin have same lhoods
 \item mle sucks if the data aren't really representative
 \end{itemize}
