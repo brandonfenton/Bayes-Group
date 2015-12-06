@@ -226,6 +226,7 @@ setwd("C:/Users/dsand_000/Desktop/Stats/S532/gitProj/Bayes-Group")
 # sample sizes
 n.o <- 180
 m <- 30
+cauchyscale <- 3
 n.b <- 6
 n.v <- 5
 n.n <- 3
@@ -266,6 +267,7 @@ y <- od$infected
 #### possibly useless
 od.stan.data <- list(num_obs=n.o,
                      m=m,
+                     cauchysd=cauchyscale,
                      num_b=n.b,
                      num_v=n.v,
                      num_n=n.n,
@@ -336,6 +338,7 @@ sens <- lapply(scales, function(scale){
 #save(sens, file = 'sens.rdata')
 load('sens.rdata')
 
+x11()
 params <- c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv",
             "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni",
             "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni")
