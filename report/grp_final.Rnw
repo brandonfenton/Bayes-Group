@@ -253,11 +253,43 @@ od$"uninfected" <- 30 - y.vec
 ##   future use.
 # write.csv(od,"od.csv",row.names = FALSE)
 @
-For this simulation the following model was used:
+
+Data were simulated from the model
 \begin{align*}
-&y_i \sim \text{Bin}(30,\pi_i) \\
-&\text{logit}(\pi_i) = {\bf x}_{i}{\bf \beta} % Bold? TODO
+&y_j &\sim \text{Bin}(30,\pi_j); \\
+&\text{logit}(\pi_j) &=
+% OVERALL
+\mu % Batch 0: mean
+\\
+&\quad
+% BLOCK LEVEL
++ \beta^{(1)}_{b[j]} % Batch 1: Blk
+\\
+&\quad
+% ROW LEVEL
++ \beta^{(2)}_{v[j]} % Batch 2: Vty
++ \beta^{(3)}_{b[j],v[j]} % Batch 3: Blk * Vty
+\\
+&\quad
+% PLOT LEVEL
++ \beta^{(4)}_{i[j]} % Batch 4: Ino
++ \beta^{(5)}_{n[j]} % Batch 5: Nit
++ \beta^{(6)}_{b[j],i[j]} % Batch 6: Blk * Ino
++ \beta^{(7)}_{b[j],n[j]} % Batch 7: Blk * Nit
++ \beta^{(8)}_{i[j],n[j]} % Batch 8: Ino * Nit
++ \beta^{(9)}_{i[j],v[j]} % Batch 9: Ino * Vty
++ \beta^{(10)}_{n[j],v[j]} % Batch 10: Nit * Vty
++ \beta^{(11)}_{b[j],i[j],n[j]} % Batch 11: Blk * Ino * Nit
++ \beta^{(12)}_{b[j],i[j],v[j]} % Batch 12: Blk * Ino * Vty
++ \beta^{(13)}_{b[j],n[j],v[j]} % Batch 13: Blk * Nit * Vty
++ \beta^{(14)}_{i[j],n[j],v[j]} % Batch 14: Ino * Nit * Vty
+% Maybe add the four-way?
 \end{align*}
+where \(j=1,2,\dots,180\) indexes the plots; \(b=1,2,\dots,6\) indexes
+the blocks; \(i=1\) indicates non-inoculated status and \(i=2\) indicates
+inoculated status; \(n=1,2,3\) indicate early, mid, and late nitrogen
+application, respectively; \(v=1,2,\dots,5\) index.
+
 Given the study design we'd expect roughly 5\% of the leaves collected to be infected.
 With this in mind, an intercept value of -3 was chosen since $\text{logit}(0.05)\approx-3$.
 For each batch of coefficients, values were generated via random draws from normal distributions
