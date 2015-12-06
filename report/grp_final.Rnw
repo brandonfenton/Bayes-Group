@@ -43,7 +43,7 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \maketitle
-% \tableofcontents
+\tableofcontents
 % \newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% R code options
@@ -59,7 +59,8 @@ opts_chunk$set(
   dev='pdf', 
   concordance=TRUE, 
   results='asis',
-  size = 'small'
+  size = 'footnotesize',
+  fig.align='center'
 )
 
 ### other defaults
@@ -256,7 +257,26 @@ od$"uninfected" <- 30 - y.vec
 ##   future use.
 # write.csv(od,"od.csv",row.names = FALSE)
 @
+For this simulation the following model was used:
+\begin{align*}
+&y_i \sim \text{Bin}(30,\pi_i) \\
+&\text{logit}(\pi_i) = {\bf x}_{i}{\bf \beta} % Bold? TODO
+\end{align*}
+Given the study design we'd expect roughly 5\% of the leaves collected to be infected. 
+With this in mind, an intercept value of -3 was chosen since $\text{logit}(0.05)\approx-3$.
+For each batch of coefficients, values were generated via random draws from normal distributions
+centered at zero. Variances were chosen for each effect to reflect our beliefs about the importance 
+of that effect on the response.  We have provided code so that all details and steps of the process
+are available and reproducible.  The simulated leaf counts can be seen in Figure 1.
 
+\begin{figure}[h!]
+<<simulation_plot, out.width="0.6\\linewidth">>=
+par(mfrow=c(1,1), mar=c(2,2,2,1))
+plot(table(y.vec), ylab = "", xlab = "")
+  points(sort(unique(y.vec)), table(y.vec), pch=19, col="blue")
+@
+\caption{The number of the 180 simulated plots that had 0 leaves, 1 leaf, $\hdots$, 11 leaves infected out of the 30 collected from each plot.}
+\end{figure}
 
 \section{Bayesian Background}
 \subsection{Why Choose Bayesian}
