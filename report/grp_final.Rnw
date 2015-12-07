@@ -298,10 +298,9 @@ To understand the model, it is helpful to think about the process that would gen
 
 Since infection is an uncommon event, an overall infection rate of 5\% could be expected. For the simulation, we set \(\mu=-3\) because \(\mathrm{logit}(0.05)\approx -3\). Inoculated plots will have higher infection rates than non-inoculated plots, so \(\beta^{(4)}_2=0.5\) and \(\beta^{(4)}_1=-0.5\) were used to give baseline infection rates of about 8\% and 3\% in inoculated and non-inoculated plots, respectively.
 
-For each batch of coefficients, values were generated via random draws from normal distributions
-centered at zero. Variances were chosen for each effect to reflect our beliefs about the importance
-of that effect on the response.  We have provided code so that all details and steps of the process
-are available and reproducible.  The simulated leaf counts can be seen in Figure~\ref{simplot}.
+For each batch, values of the coefficients were generated via random draws from normal distributions centered at zero. Standard deviations were chosen for each effect to reflect our beliefs about the importance of that effect on the infection rate. Variety, nitrogen timing, and interactions involving inoculation should have high variation, so the values \(\sigma_2=0.3\), \(\sigma_5=0.4\), \(\sigma_8=0.03\), \(\sigma_9=0.03\), and \(\sigma_2={14}=0.001\) were used. Other batches were given relatively small standard deviations.
+
+We have provided code so that all details and steps of the process are available and reproducible. The simulated leaf counts are illustrated in Figure~\ref{heatmap}.
 
 \begin{figure}[H]
 <<simulation_plot,out.width="0.4\\linewidth",fig.width=4>>=
@@ -368,8 +367,6 @@ axis(4)
 \caption{Heatmap of the number of infected leaves out of 30 from each plot. The data have been arranged by variety, block, inoculation status, and nitrogen application time so that patterns can be seen easily.}
 \label{heatmap}
 \end{figure}
-
-\newpage
 
 \section{Generalized Linear (Mixed) Model}
 \subsection{Likelihood}
