@@ -463,7 +463,7 @@ can only be used to compare possible \(\theta\) values in the context of
 one set of observed data.
 
 \subsection{Why Choose Bayesian}
-There are many advantages to performing a Bayesian analysis. A big one in this case, is its ability to provide meaningful results. MLE at edge of parameter space.
+There are many advantages to performing a Bayesian analysis. One of these advantages is the ability to provide meaningful results even when . MLE at edge of parameter space.
 
 The likelihoodist approach provides a point estimate; a Bayesian approach provides a probability distribution.
 
