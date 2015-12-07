@@ -430,12 +430,12 @@ While the likelihoodist approach can be powerful and elegant in its simplicity, 
 
 \section{Bayesian Analysis}
 \subsection{Background}
-Probability theory provides the basic property of conditional probability known as Bayes rule,
+Probability theory provides the basic property of conditional probability known as Bayes' rule,
 \begin{align*}
 p(\theta|y) & = \frac{p(\theta,y)}{p(y)} \\
 & = \frac{p(\theta)p(y|\theta)}{p(y)}
 \end{align*}
-where $p(y) = \sum_{\theta} p(\theta)p(y|\theta)$ is summed over all possible values of $\theta$. A Bayesian analysis starts from Bayes rule. It involves finding a posterior distribution for
+where $p(y) = \sum_{\theta} p(\theta)p(y|\theta)$ is summed over all possible values of $\theta$. A Bayesian analysis starts from Bayes' rule. It involves finding a posterior distribution for
 \(\theta\), denoted \(p(\theta|y)\), from the likelihood \(p(y|\theta)\)
 and a prior distribution of \(\theta\), \(p(\theta)\). The posterior is
 found using the proportionality relationship,
@@ -811,6 +811,22 @@ anova.superpop(od.stan3, batches3, superpop.sds3, dfs3, xlim = c(0, 10))
 @
 
 \section{Model Comparison}
+-code complexity
+--not entirely sure to what degree glmer can actually fit, although it is simpler to use
+--Bayesian modeling requires much more setup, but after that's done you can do more with it
+
+-inferences that can be made from each model
+--glmer gives point estimates, CIs and a single variance for the random effects
+--with Bayes we have distributions for everything.  this provides much more information.
+
+-model complexity
+--easier to implement difficult model structures in Bayes
+--Bayes can handle separation issues much better
+
+-actual comparison of output
+--variances(block)
+--glmer has significance stars (!)
+--
 
 \section{Conclusion}
 
