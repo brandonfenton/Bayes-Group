@@ -460,13 +460,11 @@ can only be used to compare possible \(\theta\) values in the context of
 one set of observed data.
 
 \subsection{Why Choose Bayesian}
-There are many advantages to performing a Bayesian analysis. One of these advantages is the ability to provide meaningful results even when . MLE at edge of parameter space.
+There are many advantages to performing a Bayesian analysis. One such advantage is the ability to provide meaningful results even when there are few available observations with which to carry out inference about a given parameter.  Another is a relative robustness to unusual samples; with carefully chosen priors a Bayesian analysis can succeed here where a likelihoodist approach would utterly fail, especially in situations where the data produce an MLE value at the edge of the parameter space.
 
-The likelihoodist approach provides a point estimate; a Bayesian approach provides a probability distribution.
+Further, a Bayesian analysis will produce a distribution with which inferences can be made about a given parameter.  A likelihoodist approach of the same data would only furnish point and variance estimates.  With the availability of posterior distributions comes not only a more complete picture regarding the parameter itself, but the ability to carry out posterior predictive checks and the like.
 
-It is very difficult to fit a generalized linear mixed model in R, and can have separation issues. We can avoid many of those complications with the Bayesian approach.
-
-It can also come in handy when not much data is provided. {\it This might not be necessary to include.}
+Finally, it can be very difficult in some instances to fit a generalized linear mixed model in R.  While an analogous Bayesian model might require more lines of code to set up, doing so can at times be a more logical and straightforward process.  And once the model has been set up, there is again a much larger set of ways in which it can be used.
 
 \subsection{Priors}
 As described in Section 6.1, the use of Bayesian analysis involves prior distributions. In practice, not much is known as to what distribution the parameters, themselves, actually follow. But, hey, we don't actually need to know! We ultimately want the data to make the most impact on the posterior distribution we obtain, so our decisions on what priors we use are really just to get the ball rolling, so to speak.
