@@ -114,7 +114,7 @@ In total, 180 plots were observed. From each plot, 30 leaves were collected haph
 
 \section{Model and Simulation}
 
-<<data_simulation>>=
+<<data_simulation,cache=TRUE>>=
 ## These functions will be used thoughout.
 logit <- function(x){return(log(x/(1-x)))}
 expit <- function(x){return(exp(x)/(1+exp(x)))}
@@ -304,7 +304,7 @@ For each batch, values of the coefficients were generated via random draws from 
 We have provided code so that all details and steps of the process are available and reproducible. The simulated leaf counts are illustrated in Figure~\ref{heatmap}.
 
 \begin{figure}[H]
-<<simulation_plot,out.width="0.4\\linewidth",fig.width=4>>=
+<<simulation_plot,out.width="0.4\\linewidth",fig.width=4,cache=TRUE,dependson='data_simulation'>>=
 par(mfrow=c(1,1), mar=c(2,2,2,1))
 plot(table(y.vec), ylab = "", xlab = "")
   points(sort(unique(y.vec)), table(y.vec), pch=19, col="blue")
@@ -314,7 +314,7 @@ plot(table(y.vec), ylab = "", xlab = "")
 \end{figure}
 
 \begin{figure}[H]
-<<heat_map,out.height='0.3\\linewidth',fig.height=3>>=
+<<heat_map,out.height='0.3\\linewidth',fig.height=3,cache=TRUE,dependson='data_simulation'>>=
 ## Heatmap with meaningful ordering
 
 # Order the dataset, using the arrange function from the dplyr package
@@ -369,7 +369,10 @@ axis(4)
 \label{heatmap}
 \end{figure}
 
-\section{Generalized Linear (Mixed) Model}
+\section{Generalized Linear Mixed Model}
+
+The most common way to analyze data from a split-plot experiment is to use a linear mixed model. In this situation, the response variable is a Binomial count, so a generalized linear mixed model is used. This approach uses nested batches of coefficients to model the structure of the experimental design. These coefficients are considered to be varying members of a population, and so a scale parameter is estimated for each batch. The parameters are estimated by maximizing the likelihood function.
+
 \subsection{Likelihood}
 The likelihood function provides a relative measure of how well a possible
 value of the parameter \(\theta\) fits with the observed data \(y\), and
@@ -406,7 +409,7 @@ In this case we are analyzing simulated count data, so a generalized linear mixe
 The \texttt{glmer()} function from the \texttt{lme4} package in the base R distribution was used to fit this model.
 
 As nitrogen and inoculation were pre-assigned to plots, they are treated as constants (in other words, fixed effects).  Block and variety levels can be considered as members of a larger population, and as a result will be treated as a varying, or random, effect.
-<<glmm, eval=FALSE>>=
+<<glmm, eval=TRUE,cache=TRUE,dependson='data_simulation'>>=
 ## The lme4 package has the glmer function.
 require(lme4)
 
@@ -422,10 +425,19 @@ glm.mod <- glmer(formula = cbind(infected, uninfected) ~ (nit + ino)^2 +
 @
 
 \subsection{Results}
--caterpillar plot?
--
-\subsection{Diagnostics}
--binned residual plot
+
+\begin{figure}[H]
+<<someoutput,echo=FALSE,out.height='0.5\\linewidth',fig.height=5,cache=TRUE,dependson='glmm'>>=
+require(gridExtra)
+require(lattice)
+grid.arrange(dotplot(ranef(glm.mod, condVar = TRUE))[[1]],
+             dotplot(ranef(glm.mod, condVar = TRUE))[[7]],
+             ncol = 2)
+@
+\caption{TODO}
+\label{someoutput}
+\end{figure}
+
 \subsection{Arguments against Likelihood}
 While the likelihoodist approach can be powerful and elegant in its simplicity, it has some major shortcomings.  Even if the model is correct, two different models can have the same likelihood function (as is the case for binomial and negative binomial distributions).  Similarly, even if the sample is sufficiently large and was collected in such a way that it should be representative, it is still possible to end up with a sample that is not representative of the population.  Either of these flaws could be tempered by including information about prior beliefs or domain-specific knowledge relevant to the model, but the likelihoodist approach does not provide a way to do so.  In some cases this may not matter, but in many others the relevant information which is left unused by the likelihoodist approach can greatly improve both the ability to make inferences and the quality of those inferences.
 
@@ -496,7 +508,7 @@ There is also BUGS, JAGS, and BayesGlm. There is a website to help you choose pr
 
 \section{Posterior Inferences}
 
-<<stop_the_errors>>=
+<<stop_the_errors,cache=TRUE>>=
 # Numbers of observations
 n.o <- 180
 m <- 30
@@ -539,8 +551,10 @@ y <- od$infected
 load('../sens.rdata')
 @
 
-<<stan_unrun, eval=FALSE>>=
-#### not at all useless
+<<stan_unrun, eval=FALSE,cache=TRUE,dependson='stop_the_errors'>>=
+# List of data to send to Stan.
+# The names on the left are the variable names used in the Stan model.
+# The names on the right are the values being sent.
 od.stan.data <- list(num_obs=n.o,
                      m=m,
                      cauchysd=cauchyscale,
@@ -573,25 +587,15 @@ od.stan.data <- list(num_obs=n.o,
                      bvi_int=as.numeric(bvi.vec),
                      bni_int=as.numeric(bni.vec),
                      vni_int=as.numeric(vni.vec))
-#stan_herpes <- stan_model(file = "./your_mom.stan", model_name = "ni")
-#require(rstudioapi)
-#options(mc.cores = 1)
-#your_sister <- sampling(stan_herpes, chains = 4, iter = 500, data = weiner_logs, sample_file="trial")
-# t1 <- read_stan_csv("trial_1.csv", col_major = TRUE)
-# t2 <- read_stan_csv("trial_2.csv", col_major = TRUE)
-# t3 <- read_stan_csv("trial_3.csv", col_major = TRUE)
-# t4 <- read_stan_csv("trial_4.csv", col_major = TRUE)
-trial5000 <- read_stan_csv(c("trial5000_1.csv","trial5000_2.csv","trial5000_3.csv","trial5000_4.csv"), col_major=TRUE)
-# trial <- read_stan_csv(c("trial_1.csv","trial_2.csv","trial_3.csv","trial_4.csv"), col_major=TRUE)
-# plot(your_sister, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="median")
-plot(trial5000, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="mean")
 
 od.cauchy  <- stan_model(file = 'cauchy.stan', model_name = 'cauchyprior')
 od.cauchy.out <- sampling(od.cauchy, chains = 4, iter = 500, data = od.stan.data, sample_file = 'trial')
 
 # TODO move this somewhere where it will display, maybe
 plot(od.cauchy.out, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="mean")
+@
 
+<<sens_run,eval=FALSE,cache=TRUE,dependson='stop_the_errors'>>=
 # A simple sensitivity analysis
 scales <- c(1, 2, 3, 5, 7, 11)
 sens <- lapply(scales, function(scale){
@@ -618,7 +622,7 @@ sens <- lapply(scales, function(scale){
 \pagebreak
 
 \begin{figure}[H]
-<<sens_analysis, fig.width=9, fig.height=12, out.width="\\textwidth", out.height="0.95\\textheight">>=
+<<sens_analysis, fig.width=9, fig.height=12, out.width="\\textwidth", out.height="0.95\\textheight",cache=TRUE,dependson="stop_the_errors">>=
 sensitivity.plot <- function(stan.list, pars, vals, xmin = 0, xmax = 1,
                              inner = 0.5, outer = 0.95,
                              ylab = 'Hyperparameter Value', ...){
@@ -662,7 +666,7 @@ sensitivity.plot(sens, params, scales, xmax = xlims, ylab = 'Prior Scale')
 
 \section{Posterior Predictive Check}
 
-<<posterior_prediction_setup>>=
+<<posterior_prediction_setup,cache=TRUE,dependson='stop_the_errors'>>=
 # Get the one Stan fit where we used a scale of 3.
 od.stan <- sens[[3]]
 
@@ -697,7 +701,7 @@ One major advantage to taking a Bayesian approach to data analysis is the inhere
 There are two particular features of the original data which are important to capture in the modeling process: the relatively large number of zeros, and the maximum infected count.  A model incorporating either of these features separately would be relatively straightforward to fit, but capturing both simultaneously takes more consideration.  Since the extreme values of the data are of primary concern here, the mean is not a useful metric.  In order to ascertain whether or not the model did in fact capture these aspects of the data, posterior predictive checks for the number of predicted zeros (Figure~\ref{post_pred}, left) and predicted maximum (Figure~\ref{post_pred}, center) were performed.  The relationship between predicted counts and the original counts can be visualized using a scatterplot (Figure~\ref{post_pred}, right).
 
 \begin{figure}[H]
-<<post_pred_plots>>=
+<<post_pred_plots,cache=TRUE,dependson='posterior_prediction_setup'>>=
 # Plot zero counts, maxes, and scatterplot of y.pred vs. y.
 par(mfrow=c(1,3))
 plot(table(n.zero.pred)/sum(table(n.zero.pred)),
@@ -737,7 +741,7 @@ Posterior predictive checks need not only be used to make graphical comparisons.
 \section{Bayesian ANOVA}
 
 \begin{figure}[H]
-<<bayes_anova,out.height='0.5\\linewidth',fig.height=4,fig.width=8>>=
+<<bayes_anova,out.height='0.5\\linewidth',fig.height=4,fig.width=8,cache=TRUE,dependson='stop_the_errors'>>=
 # Gelman ANOVA plot for superpop sds
 batches <- c('block',
               NA,
