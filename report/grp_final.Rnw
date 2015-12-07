@@ -407,12 +407,14 @@ glm.mod <- glmer(formula = cbind(infected, uninfected) ~ (nit + ino)^2 +
 \subsection{Results}
 
 <<display_output,cache=TRUE,dependson='glmm'>>=
-xtable(summary(glm.mod)$coefficient,
-       caption = 'TODO',
-       label = 'fixef')
-xtable(as.data.frame(summary(glm.mod)$varcor)[,c(1,4,5)],
-       caption = 'TODO',
-       label = 'ranef')
+print(xtable(summary(glm.mod)$coefficient[,c('Estimate', 'Std. Error')],
+             caption = 'Estimated coefficients for the constant terms.',
+             label = 'fixef', digits = c(0, 3, 4)))
+sumtable <- as.data.frame(summary(glm.mod)$varcor)[,c('grp', 'sdcor')]
+colnames(sumtable) <- c('Batch', 'Std. Dev.')
+print(xtable(sumtable,
+             caption = 'Estimated standard deviations of the varying terms.',
+             label = 'ranef', digits = c(0, 0, 4)), include.rownames = FALSE)
 @
 
 \begin{figure}[H]
@@ -425,7 +427,7 @@ plot2 <- dotplot(ranef(glm.mod, condVar = TRUE),
                  scales = list(y = list(draw = FALSE)))[[1]]
 grid.arrange(plot1, plot2, ncol = 2)
 @
-\caption{TODO}
+\caption{95\% confidence intervals for the individual coefficients in the two batches with large standard deviations.}
 \label{someoutput}
 \end{figure}
 
@@ -466,7 +468,7 @@ one set of observed data.
 \subsection{Advantages to Bayesian Data Analysis}
 There are many advantages to performing a Bayesian analysis. One such advantage is the ability to provide meaningful results even when there are few available observations with which to carry out inferences about a given parameter.  Another is a relative robustness to unusual samples; with carefully-chosen priors a Bayesian analysis can succeed where a likelihoodist approach would utterly fail, especially in situations where the data produce an MLE value at the edge of the parameter space.  For example, if this experiment had been performed on only one plot and no infected leaves were observed, the MLE would lead to the conclusion that on average no leaves would be infected upon replication.  This result would run counter to both common sense and the scientific consensus motivating the experiment in the first place.
 
-Furthermore, a Bayesian analysis will produce a distribution with which inferences can be made about a given parameter.  A likelihoodist approach applied to the same data would only furnish point and variance estimates.  With the availability of posterior distributions comes a more complete picture regarding the parameter itself.  This additional information provides the ability to carry out posterior predictive checks and the like -- DA says no to this sentence.  From the posterior distribution, probabilistic intervals can be obtained that are more natural for discussion. 
+Furthermore, a Bayesian analysis will produce a distribution with which inferences can be made about a given parameter.  A likelihoodist approach applied to the same data would only furnish point and variance estimates.  With the availability of posterior distributions comes a more complete picture regarding the parameter itself.  This additional information provides the ability to carry out posterior predictive checks and the like -- DA says no to this sentence.  From the posterior distribution, probabilistic intervals can be obtained that are more natural for discussion.
 
 Finally, it can be very difficult in some instances to fit a generalized linear mixed model in R.  While an analogous Bayesian model might require more lines of code to set up, doing so can at times be a more logical and straightforward process.  And once the model has been set up, there is again a much larger set of ways in which it can be used.
 
@@ -715,8 +717,8 @@ set.seed(8234)
 plot(x=y, y=y, xlim = c(0, max(y.pred) + 1), ylim=c(0, 12),
      type="n", xlab = expression(y[pred]), ylab = "y")
 for(i in sample(nrow(y.pred), 100, replace = FALSE)){
-  points(x=y.pred[i,], y=y, pch=21, col=rgb(0.3, 0.3, 1),
-         bg = rgb(0, 1, 0, 0.004))
+  points(x=y.pred[i,], y=y, pch=21, col=rgb(0.3, 0.3, 0.95),
+         bg = rgb(0, 1, 0.5, 0.05))
 }
 abline(a=0, b=1, col=rgb(1, 0, 0), lwd = 3, lty = "dashed")
 par(mfrow=c(1,1))
