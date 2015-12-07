@@ -109,7 +109,7 @@ The experiment was performed in six blocks. Each block contained five rows, with
 
 In total, 180 plots were observed. From each plot, 30 leaves were collected haphazardly and the infection status was recorded for each. These data were aggregated to the plot level so that the response variable was the number of infected plants out of 30.
 
-\section{Simulation}
+\section{Model and Simulation}
 <<data_simulation>>=
 ## These functions will be used thoughout.
 logit <- function(x){return(log(x/(1-x)))}
@@ -255,7 +255,7 @@ od$"uninfected" <- 30 - y.vec
 # write.csv(od,"od.csv",row.names = FALSE)
 @
 
-Data were simulated from the model
+The statistical model is
 \begin{align*}
 y_j &\sim \text{Bin}(30,\pi_j), \ \text{for} \ j=1,2,\dots,180; \\
 \text{logit}(\pi_j)
@@ -281,13 +281,19 @@ y_j &\sim \text{Bin}(30,\pi_j), \ \text{for} \ j=1,2,\dots,180; \\
 + \beta^{(11)}_{b[j],i[j],n[j]} % Batch 11: Blk * Ino * Nit
 + \beta^{(12)}_{b[j],i[j],v[j]} % Batch 12: Blk * Ino * Vty
 + \beta^{(13)}_{b[j],n[j],v[j]} % Batch 13: Blk * Nit * Vty
-+ \beta^{(14)}_{i[j],n[j],v[j]}, % Batch 14: Ino * Nit * Vty
++ \beta^{(14)}_{i[j],n[j],v[j]}; % Batch 14: Ino * Nit * Vty
 % Maybe add the four-way?
+\\
+\beta^{(k)}_{(\cdot)}&\sim\mathrm{N}(0,\sigma^2_k),
+\ \text{for} \ k=1,2,\dots,14;
 \end{align*}
-where \(b=1,2,\dots,6\) indexes
-the blocks; \(i=1\) indicates non-inoculated status and \(i=2\) indicates
-inoculated status; \(n=1,2,3\) indicate early, mid, and late nitrogen
-application, respectively; \(v=1,2,\dots,5\) index.
+where \(b=1,2,\dots,6\) indexes the blocks; \(i=1\) indicates non-inoculated status and \(i=2\) indicates inoculated status; \(n=1,2,3\) indicate early, mid, and late nitrogen application, respectively; \(v=1,2,\dots,5\) indexes the varieties.
+
+In the above model, each \(\beta^{(k)}_{(\cdot)}\) is a member of a batch of coefficients sharing a common Normal distribution with a scale parameter \(\sigma_k\). The analysis of variance is less concerned with the values of particular coefficients than with the contribution of each batch to the total variation of the data, so the blocks, varieties, and nitrogen application times can be thought of as random samples from populations.
+
+To understand the model, it is helpful to think about the process that would generate the data, and then simulate data from that process. There is some overall infection rate for the population of all winter wheat plants. Plants in inoculated plots will have higher infection rates than plants in plots that were not inoculated. Characteristics like variety, timing of the nitrogen application, and environmental conditions (for which block is a proxy) cause variation about the overall mean. If a certain characteristic, such as the variety, has a large influence on the infection rate, then it
+
+Since infection is an uncommon event, an overall infection rate of 5\% could be expected.
 
 Given the study design we'd expect roughly 5\% of the leaves collected to be infected.
 With this in mind, an intercept value of -3 was chosen since $\text{logit}(0.05)\approx-3$.
@@ -435,6 +441,48 @@ There is also BUGS, JAGS, and BayesGlm. There is a website to help you choose pr
 
 \section{Posterior Inferences}
 
+<<stop_the_errors>>=
+# Numbers of observations
+n.o <- 180
+m <- 30
+cauchyscale <- 3
+n.b <- 6
+n.v <- 5
+n.n <- 3
+n.i <- 2
+n.bv <- n.b*n.v
+n.bn <- n.b*n.n
+n.bi <- n.b*n.i
+n.vn <- n.v*n.n
+n.vi <- n.v*n.i
+n.ni <- n.n*n.i
+n.bvn <- n.b*n.v*n.n
+n.bvi <- n.b*n.v*n.i
+n.bni <- n.b*n.n*n.i
+n.vni <- n.v*n.n*n.i
+
+# Vectors of levels
+b.vec <- od$blk
+v.vec <- od$vty
+n.vec <- od$nit
+i.vec <- od$ino
+bv.vec <- od$bv.int
+bn.vec <- od$bn.int
+bi.vec <- od$bi.int
+vn.vec <- od$vn.int
+vi.vec <- od$vi.int
+ni.vec <- od$ni.int
+bvn.vec <- od$bvn.int
+bvi.vec <- od$bvi.int
+bni.vec <- od$bni.int
+vni.vec <- od$vni.int
+
+# Infected
+y <- od$infected
+
+# Load stored Stan draws.
+load('../sens.rdata')
+@
 
 \section{Posterior Predictive Check}
 \subsection{Overview}
@@ -482,7 +530,7 @@ axis(1, 6:22)
 @
 
 <<post_pred_scatt>>=
-plot(x=y, y=y, xlim = c(0, max(y.pred) + 1), ylim=c(0, max(y.pred) + 1), 
+plot(x=y, y=y, xlim = c(0, max(y.pred) + 1), ylim=c(0, max(y.pred) + 1),
      type="n", xlab = expression(y[pred]), ylab = "y")
 for(i in 1:nrow(y.pred))
 {
