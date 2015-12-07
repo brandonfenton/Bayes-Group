@@ -435,6 +435,48 @@ There is also BUGS, JAGS, and BayesGlm. There is a website to help you choose pr
 
 \section{Posterior Inferences}
 
+<<stop_the_errors>>=
+# Numbers of observations
+n.o <- 180
+m <- 30
+cauchyscale <- 3
+n.b <- 6
+n.v <- 5
+n.n <- 3
+n.i <- 2
+n.bv <- n.b*n.v
+n.bn <- n.b*n.n
+n.bi <- n.b*n.i
+n.vn <- n.v*n.n
+n.vi <- n.v*n.i
+n.ni <- n.n*n.i
+n.bvn <- n.b*n.v*n.n
+n.bvi <- n.b*n.v*n.i
+n.bni <- n.b*n.n*n.i
+n.vni <- n.v*n.n*n.i
+
+# Vectors of levels
+b.vec <- od$blk
+v.vec <- od$vty
+n.vec <- od$nit
+i.vec <- od$ino
+bv.vec <- od$bv.int
+bn.vec <- od$bn.int
+bi.vec <- od$bi.int
+vn.vec <- od$vn.int
+vi.vec <- od$vi.int
+ni.vec <- od$ni.int
+bvn.vec <- od$bvn.int
+bvi.vec <- od$bvi.int
+bni.vec <- od$bni.int
+vni.vec <- od$vni.int
+
+# Infected
+y <- od$infected
+
+# Load stored Stan draws.
+load('../sens.rdata')
+@
 
 \section{Posterior Predictive Check}
 \subsection{Overview}
@@ -482,7 +524,7 @@ axis(1, 6:22)
 @
 
 <<post_pred_scatt>>=
-plot(x=y, y=y, xlim = c(0, max(y.pred) + 1), ylim=c(0, max(y.pred) + 1), 
+plot(x=y, y=y, xlim = c(0, max(y.pred) + 1), ylim=c(0, max(y.pred) + 1),
      type="n", xlab = expression(y[pred]), ylab = "y")
 for(i in 1:nrow(y.pred))
 {
