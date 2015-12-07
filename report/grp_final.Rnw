@@ -291,8 +291,9 @@ where \(b=1,2,\dots,6\) indexes the blocks; \(i=1\) indicates non-inoculated sta
 
 In the above model, each \(\beta^{(k)}_{(\cdot)}\) is a member of a batch of coefficients sharing a common Normal distribution with a scale parameter \(\sigma_k\). The analysis of variance is less concerned with the values of particular coefficients than with the contribution of each batch to the total variation of the data, so the blocks, varieties, and nitrogen application times can be thought of as random samples from populations.
 
-To understand the model, it is helpful to think about the process that would generate the data.
-Given the study design we'd expect roughly 5\% of the leaves collected to be infected.
+To understand the model, it is helpful to think about the process that would generate the data, and then simulate data from that process. There is some overall infection rate for the population of all winter wheat plants. Plants in inoculated plots will have higher infection rates than plant in plots that were not inoculated. Characteristics like variety, timing of the nitrogen application, and environmental conditions (for which block is a proxy) cause variation about the overall mean. If a certain characteristic, such as the variety, has a large influence on the infection rate, then
+
+Since infection is an uncommon event, 5\% of the leaves collected to be infected.
 With this in mind, an intercept value of -3 was chosen since $\text{logit}(0.05)\approx-3$.
 For each batch of coefficients, values were generated via random draws from normal distributions
 centered at zero. Variances were chosen for each effect to reflect our beliefs about the importance
@@ -485,7 +486,7 @@ axis(1, 6:22)
 @
 
 <<post_pred_scatt>>=
-plot(x=y, y=y, xlim = c(0, max(y.pred) + 1), ylim=c(0, max(y.pred) + 1), 
+plot(x=y, y=y, xlim = c(0, max(y.pred) + 1), ylim=c(0, max(y.pred) + 1),
      type="n", xlab = expression(y[pred]), ylab = "y")
 for(i in 1:nrow(y.pred))
 {
