@@ -541,12 +541,12 @@ load('../sens.rdata')
 
 \section{Posterior Predictive Check}
 \subsection{Overview}
-
+One major advantage to taking a Bayesian approach to data analysis is the inherent flexibility of Bayesian methods.  Once draws have been obtained from a posterior distribution, those draws can be used to predict new data sets which will hopefully be representative of the population from which the original data were drawn.  If this is true, then the original data should not seem extraordinary in relation to the posterior predictions.  By extension, inferences made based on the predicted values should be close to those made based on the original data.  More specifically, checking inferences about aspects of the data which were not explicitly modeled can indicate whether or not the model performs well.   Such checks, known as posterior predictive checks, should ideally compare measurements which are related to the researchers' objectives.
 
 \subsection{Test Quantities}
 There are two particular features of the original data which are important to capture in the modeling process: the relatively large number of zeros, and the maximum infected count.  A model incorporating either of these features separately would be relatively straightforward to fit, but capturing both simultaneously takes more consideration.  Since the extreme values of the data are of primary concern here, the mean is not a useful metric.  In order to ascertain whether or not the model did in fact capture these aspects of the data, posterior predictive checks for the number of predicted zeros and predicted maximum were performed.  The relationship between predicted counts and the original counts can be visualized using a scatterplot.
 
-Posterior predictive checks need not only be graphical.  Meaningful aspects of the data can be compared to values predicted by the model using numerical summaries.  In this study, plots with infection counts greater than 3 are of practical interest since it would represent an infection rate of more than 10\%.
+Posterior predictive checks need not only be used to make graphical comparisons.  Meaningful aspects of the data can be compared to values predicted by the model using numerical summaries.  In this study, plots with infection counts greater than 3 are of practical interest since it would represent an infection rate of more than 10\%.
 
 \subsection{Implementation}
 
