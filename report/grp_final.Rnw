@@ -78,7 +78,7 @@ options(
 
 ### load in necessary packages
 # require(nlme)
-# require(lme4)
+require(lme4)
 require(xtable)
 # require(ggplot2)
 # require(lattice)
@@ -89,8 +89,9 @@ require(xtable)
 # library(mvtnorm)
 # library(coda)
 # require(geoR) # for scaled inverse chi squared
-# require(rstan)
-
+require(rstan)
+rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores())
 ### set working directory - Doug
 # setwd("C:/Users/dsand_000/Desktop/Stats/S532/gitProj/Bayes-Group/report")
 @
@@ -445,6 +446,52 @@ Ideas:
 \item RMS density/hist
 \item $y_{pred}$ versus $y_{sim}$ scatterplot
 \end{itemize}
+
+<<posterior_prediction_setup>>=
+# Get the one Stan fit where we used a scale of 3
+od.stan <- sens[[3]]
+
+# Do some posterior predictin'
+p.stan <- extract(od.stan, pars = 'p')$p
+y.pred <- apply(p.stan, c(1, 2), function(p){return(rbinom(1, m, p))})
+
+n.zero.pred <- apply(y.pred, 1, function(x){return(sum(x==0))})
+max.pred <- apply(y.pred, 1, max)
+
+rms <- function(ypred) {return(sqrt(mean((ypred-y)^2)))}
+rms.pred <- apply(y.pred, 1, rms)
+
+@
+<<post_pred_zeros>>=
+
+plot(table(n.zero.pred)/sum(table(n.zero.pred)),
+     lwd = 3, xlim = c(15, 55), xaxt = 'n',
+     main = 'Predicted Zero Counts',
+     xlab = 'Number of Zeros', ylab = '')
+abline(v = sum(y==0), lty = 'dashed', lwd = 2, col = 'red')
+axis(1, seq(15, 55, 5))
+@
+<<post_pred_max>>=
+
+plot(table(max.pred), xlim = c(6, 22), lwd = 3, xaxt = 'n',
+     main = 'Predicted Maxima',
+     xlab = 'Maximum', ylab = '')
+abline(v = max(y), lty = 'dashed', lwd = 2, col = 'red')
+axis(1, 6:22)
+@
+
+<<post_pred_scatt>>=
+plot(x=y, y=y, xlim = c(0, max(y.pred) + 1), ylim=c(0, max(y.pred) + 1), 
+     type="n", xlab = expression(y[pred]), ylab = "y")
+for(i in 1:nrow(y.pred))
+{
+  points(x=y.pred[i,], y=y, pch=21, col=rgb(0.3, 0.3, 1), bg = rgb(0, 1, 0, 0.004))
+
+}
+  abline(a=0, b=1, col=rgb(1, 0, 0), lwd = 3, lty = "dashed")
+@
+
+
 
 
 \section{Bayesian ANOVA}
