@@ -466,7 +466,7 @@ one set of observed data.
 \subsection{Advantages to Bayesian Data Analysis}
 There are many advantages to performing a Bayesian analysis. One such advantage is the ability to provide meaningful results even when there are few available observations with which to carry out inferences about a given parameter.  Another is a relative robustness to unusual samples; with carefully-chosen priors a Bayesian analysis can succeed where a likelihoodist approach would utterly fail, especially in situations where the data produce an MLE value at the edge of the parameter space.  For example, if this experiment had been performed on only one plot and no infected leaves were observed, the MLE would lead to the conclusion that on average no leaves would be infected upon replication.  This result would run counter to both common sense and the scientific consensus motivating the experiment in the first place.
 
-Furthermore, a Bayesian analysis will produce a distribution with which inferences can be made about a given parameter.  A likelihoodist approach applied to the same data would only furnish point and variance estimates.  With the availability of posterior distributions comes a more complete picture regarding the parameter itself.  This additional information provides the ability to carry out posterior predictive checks and the like -- DA says no to this sentence.  From the posterior distribution, probabilistic intervals can be obtained that are more natural for discussion. 
+Furthermore, a Bayesian analysis will produce a distribution with which inferences can be made about a given parameter.  A likelihoodist approach applied to the same data would only furnish point and variance estimates.  With the availability of posterior distributions comes a more complete picture regarding the parameter itself.  This additional information provides the ability to carry out posterior predictive checks and the like -- *the* DA says no to this sentence.  From the posterior distribution, probabilistic intervals can be obtained that are more natural for discussion. 
 
 Finally, it can be very difficult in some instances to fit a generalized linear mixed model in R.  While an analogous Bayesian model might require more lines of code to set up, doing so can at times be a more logical and straightforward process.  And once the model has been set up, there is again a much larger set of ways in which it can be used.
 
@@ -475,9 +475,6 @@ As described in Section 6.1, the use of Bayesian analysis requires a prior distr
 
 A natural choice for many who implement a Bayesian analysis is to use what is called a noninformative prior. A noninformative prior is "noninformative" in the sense that ideally it should not contain any subjective information about the parameter.  If there is subjective information about the parameter, whether it takes the form of a belief or prior knowledge, an analysis can be improved by including this information in the form of an informative prior.  A compromise between these two extremes is to utilize a weakly informative prior, which will include enough subjective information to constrain posterior distributions to what is reasonable.
 
-TODO: change/add to the stuff below
-There are some benefits to the choices of priors, such as conjugacy (but that doesn't come into play here as much).
-
 \subsection{The Bayesian Model}
 The model we have gone with is yada, yada, yada.
 
@@ -485,7 +482,7 @@ The model we have gone with is yada, yada, yada.
 
 The Normal probability distributions for each effect is a natural choice. Each centered at 0 as they will be adjustments on the overall mean. The half cauchy is a solid choice as argued by Gelman et al in a ``Weakly Informative Paper''. The spread of 3 allows for the effects to differ by an effect size of 18, which on the logit scale is enormous, as argued by some page in BDA3.
 
-\subsection{McSTANislaw McUlam}
+\subsection{STAN}
 When conjugate priors are used we have the benefit of knowing the  distribution of the posterior. However, given the large capacity of parameters in the model we have fit and the prior distributions chosen, the posterior is not as straightforward. This would result in very intensive, and possibly lack of computing power, calculations to determine $p(y)$ -- the denominator in Section 6.1. However, there is a very convenient way around this issue.
 
 Markov Chain Monte Carlo (MCMC) is the process of jumping around the parameter space in order to obtain draws from some target distribution (in this case the posterior distribution). As with all fields of mathematics and statistics we put our trust in the infinite; in that, it is the belief that if we were to sample enough times we will have converged on to a distribution that is the true posterior.
