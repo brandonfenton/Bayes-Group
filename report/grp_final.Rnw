@@ -539,6 +539,121 @@ y <- od$infected
 load('../sens.rdata')
 @
 
+<<stan_unrun, eval=FALSE>>=
+#### not at all useless
+od.stan.data <- list(num_obs=n.o,
+                     m=m,
+                     cauchysd=cauchyscale,
+                     num_b=n.b,
+                     num_v=n.v,
+                     num_n=n.n,
+                     num_i=n.i,
+                     num_bv=n.bv,
+                     num_bn=n.bn,
+                     num_bi=n.bi,
+                     num_vn=n.vn,
+                     num_vi=n.vi,
+                     num_ni=n.ni,
+                     num_bvn=n.bvn,
+                     num_bvi=n.bvi,
+                     num_bni=n.bni,
+                     num_vni=n.vni,
+                     y=y,
+                     blk=as.numeric(b.vec),
+                     vty=as.numeric(v.vec),
+                     nit=as.numeric(n.vec),
+                     ino=as.numeric(i.vec),
+                     bv_int=as.numeric(bv.vec),
+                     bn_int=as.numeric(bn.vec),
+                     bi_int=as.numeric(bi.vec),
+                     vn_int=as.numeric(vn.vec),
+                     vi_int=as.numeric(vi.vec),
+                     ni_int=as.numeric(ni.vec),
+                     bvn_int=as.numeric(bvn.vec),
+                     bvi_int=as.numeric(bvi.vec),
+                     bni_int=as.numeric(bni.vec),
+                     vni_int=as.numeric(vni.vec))
+#stan_herpes <- stan_model(file = "./your_mom.stan", model_name = "ni")
+#require(rstudioapi)
+#options(mc.cores = 1)
+#your_sister <- sampling(stan_herpes, chains = 4, iter = 500, data = weiner_logs, sample_file="trial")
+# t1 <- read_stan_csv("trial_1.csv", col_major = TRUE)
+# t2 <- read_stan_csv("trial_2.csv", col_major = TRUE)
+# t3 <- read_stan_csv("trial_3.csv", col_major = TRUE)
+# t4 <- read_stan_csv("trial_4.csv", col_major = TRUE)
+trial5000 <- read_stan_csv(c("trial5000_1.csv","trial5000_2.csv","trial5000_3.csv","trial5000_4.csv"), col_major=TRUE)
+# trial <- read_stan_csv(c("trial_1.csv","trial_2.csv","trial_3.csv","trial_4.csv"), col_major=TRUE)
+# plot(your_sister, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="median")
+plot(trial5000, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="mean")
+
+od.cauchy  <- stan_model(file = 'cauchy.stan', model_name = 'cauchyprior')
+od.cauchy.out <- sampling(od.cauchy, chains = 4, iter = 500, data = od.stan.data, sample_file = 'trial')
+
+# TODO move this somewhere where it will display, maybe
+plot(od.cauchy.out, pars=c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv", "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni", "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni"), ci_level=0.5, outer_level=0.95, point_est="mean")
+
+# A simple sensitivity analysis
+scales <- c(1, 2, 3, 5, 7, 11)
+sens <- lapply(scales, function(scale){
+    stan.data <- list(num_obs = n.o, m = m, cauchysd = scale,
+                      num_b = n.b, num_v = n.v, num_n = n.n, num_i = n.i,
+                      num_bv = n.bv, num_bn = n.bn, num_bi = n.bi,
+                      num_vn = n.vn, num_vi = n.vi, num_ni = n.ni,
+                      num_bvn = n.bvn, num_bvi = n.bvi, num_bni = n.bni,
+                      num_vni = n.vni, y = y, blk = as.numeric(b.vec),
+                      vty = as.numeric(v.vec), nit = as.numeric(n.vec),
+                      ino = as.numeric(i.vec), bv_int = as.numeric(bv.vec),
+                      bn_int = as.numeric(bn.vec), bi_int = as.numeric(bi.vec),
+                      vn_int = as.numeric(vn.vec), vi_int = as.numeric(vi.vec),
+                      ni_int = as.numeric(ni.vec),
+                      bvn_int = as.numeric(bvn.vec),
+                      bvi_int = as.numeric(bvi.vec),
+                      bni_int = as.numeric(bni.vec),
+                      vni_int = as.numeric(vni.vec))
+    return(sampling(od.cauchy, chains = 4, iter = 1000, data = stan.data))
+  })
+
+@
+
+<<sens_analysis>>=
+sensitivity.plot <- function(stan.list, pars, vals, xmin = 0, xmax = 1,
+                             inner = 0.5, outer = 0.95,
+                             ylab = 'Hyperparameter Value', ...){
+# Creates a caterpillar plot comparing posterior intervals for each of
+# several parameters for several values of one hyperparameter.
+#  stan.list  A list of stan_fit objects
+#  pars       Character vector of the parameters being examined
+#  vals       Numeric vector of hyperparameter values that were used
+#  xmin       Numeric (vector) of lower xlim values for each plot
+#  xmax       Numeric (vector) of upper xlim values for each plot
+#  inner      Confidence lever for outer interval
+#  outer      Confidence level for outer interval
+  if(length(xmin)<length(pars)) xmin <- rep(xmin, length(pars))
+  if(length(xmax)<length(pars)) xmax <- rep(xmax, length(pars))
+  for(j in 1:length(pars)){
+    plot(NULL, xlim = c(xmin[j], xmax[j]), ylim = c(length(sens), 1),
+         main = paste('Sensitivity Plot of', params[j]),
+         xlab = params[j], ylab = ylab, yaxt = 'n', ...)
+    axis(2, at = 1:length(sens), labels = scales, las = 1)
+    for(i in 1:length(sens)){
+      current <- unlist(extract(sens[[i]], pars = params[j]))
+      segments(x0 = quantile(current, c((1-outer)/2, (1-inner)/2)),
+               x1 = quantile(current, 1-c((1-outer)/2, (1-inner)/2)),
+               y0 = i, lwd = c(1, 3))
+      points(x = median(current), y = i, pch = 20)
+    }
+  }
+}
+
+params <- c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv",
+            "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni",
+            "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni")
+xlims <- c(1, 1, 8, 20, 1, 1, 1, 1, 1, 3, 1, 1, 1, 5)
+# x11()
+par(mfrow = c(3, 5))
+sensitivity.plot(sens, params, scales, xmax = xlims, ylab = 'Prior Scale')
+@
+
 \section{Posterior Predictive Check}
 \subsection{Overview}
 One major advantage to taking a Bayesian approach to data analysis is the inherent flexibility of Bayesian methods.  Once draws have been obtained from a posterior distribution, those draws can be used to predict new data sets which will hopefully be representative of the population from which the original data were drawn.  If this is true, then the original data should not seem extraordinary in relation to the posterior predictions.  By extension, inferences made based on the predicted values should be close to those made based on the original data.  More specifically, checking inferences about aspects of the data which were not explicitly modeled can indicate whether or not the model performs well.   Such checks, known as posterior predictive checks, should ideally compare measurements which are related to the researchers' objectives.
@@ -598,6 +713,80 @@ for(i in 1:nrow(y.pred))
 
 
 \section{Bayesian ANOVA}
+
+<<bayes_anova>>=
+# Gelman ANOVA plot for superpop sds
+batches3 <- c('block',
+              NA,
+              'variety',
+              'block * variety',
+              NA,
+              'inoculation',
+              'nitrogen',
+              NA,
+              'block * inoculation',
+              'block * nitrogen',
+              'inoculation * nitrogen',
+              'inoculation * variety',
+              'nitrogen * variety',
+              NA,
+              'block * inoculation * nitrogen',
+              'block * inoculation * variety',
+              'block * nitrogen * variety',
+              'inoculation * nitrogen * variety')
+superpop.sds3 <- c("sigma_b", NA,
+                   "sigma_v",
+                   "sigma_bv", NA,
+                   "sigma_i", "sigma_n", NA,
+                   "sigma_bi", "sigma_bn", "sigma_ni",
+                   "sigma_vi", "sigma_vn", NA,
+                   "sigma_bni", "sigma_bvi",
+                   "sigma_bvn", "sigma_vni")
+dfs3 <- c(n.b, NA, n.v, n.bv, NA, n.i, n.n, NA, n.bi, n.bn, n.ni,
+          n.vi, n.vn, NA, n.bni, n.bvi, n.bvn, n.vni) - 1
+anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
+                           inner = 0.5, outer = 0.95,
+                           width = c(6, 3, 25)){
+# Creates a caterpillar plot comparing posterior intervals for each of
+# several parameters for several values of one hyperparameter.
+#  stan.fit  A stan_fit objects
+#  sources   Character vector of batches being analyzed
+#  sds       Character vector of the scale parameters being analyzed
+#  dfs       Numeric vector of degrees of freedom for each batch
+#  inner     Confidence lever for outer interval
+#  outer     Confidence level for outer interval
+#  width     Numeric vector of widths to send to layout()
+  layout(matrix(1:3, nrow = 1), width = width)
+  # Sources
+  plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'Sources',
+       xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE,
+       mar = c(4.1, 1.1, 4.1, 0.1))
+  text(x = 1, y = 1:length(sources), labels = sources, pos = 2, offset = 0)
+  # dfs
+  plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'df',
+       xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE,
+       mar = c(4.1, 0, 4.1, 0.1))
+  text(x = 1, y = 1:length(sources), labels = dfs, pos = 2, offset = 0)
+  # SDs
+  plot(NULL, xlim = xlim, ylim = c(length(sds), 1),
+       main = 'Estimated sd of Effects', xlab = '', ylab = '', yaxt = 'n',
+       mar = c(4.1, 0, 4.1, 1.1))
+  axis(3)
+  for(j in 1:length(sources)){
+    if(!is.na(sources[j])){
+      current <- unlist(extract(stan.fit, pars = sds[j]))
+      segments(x0 = quantile(current, c((1-outer)/2, (1-inner)/2)),
+               x1 = quantile(current, 1-c((1-outer)/2, (1-inner)/2)),
+               y0 = j, lwd = c(1, 3))
+      points(x = median(current), y = i, pch = 20)
+    }
+  }
+}
+
+# x11()
+anova.superpop(od.stan3, batches3, superpop.sds3, dfs3, xlim = c(0, 10))
+@
+
 \section{Model Comparison}
 
 \section{Conclusion}
