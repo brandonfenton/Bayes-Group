@@ -425,7 +425,7 @@ glm.mod <- glmer(cbind(infected,uninfected) ~ (nit+ino)^2 + (1|blk/vty),
 \subsection{Diagnostics}
 -binned residual plot
 \subsection{Arguments against Likelihood}
-While the likelihoodist approach can be powerful and elegant in its simplicity, it has some major shortcomings.  Even if the model is correct, two different models can have the same likelihood function (as is the case for binomial and negative binomial distributions).  Similarly, even if the sample is sufficiently large and was collected in such a way that it should be representative, it is still possible to end up with a sample that is not representative of the population.  Either of these flaws could be tempered by including information about prior beliefs or domain-specific knowledge relevant to the model, but the likelihoodist approach does not provide a way to do so.  In some this may not matter, but in many others the relevant information which is left unused by the likelihoodist approach can greatly improve both the ability to make inferences and the quality of those inferences.
+While the likelihoodist approach can be powerful and elegant in its simplicity, it has some major shortcomings.  Even if the model is correct, two different models can have the same likelihood function (as is the case for binomial and negative binomial distributions).  Similarly, even if the sample is sufficiently large and was collected in such a way that it should be representative, it is still possible to end up with a sample that is not representative of the population.  Either of these flaws could be tempered by including information about prior beliefs or domain-specific knowledge relevant to the model, but the likelihoodist approach does not provide a way to do so.  In some cases this may not matter, but in many others the relevant information which is left unused by the likelihoodist approach can greatly improve both the ability to make inferences and the quality of those inferences.
 
 \section{Bayesian Analysis}
 \subsection{Background}
@@ -659,7 +659,7 @@ sensitivity.plot(sens, params, scales, xmax = xlims, ylab = 'Prior Scale')
 One major advantage to taking a Bayesian approach to data analysis is the inherent flexibility of Bayesian methods.  Once draws have been obtained from a posterior distribution, those draws can be used to predict new data sets which will hopefully be representative of the population from which the original data were drawn.  If this is true, then the original data should not seem extraordinary in relation to the posterior predictions.  By extension, inferences made based on the predicted values should be close to those made based on the original data.  More specifically, checking inferences about aspects of the data which were not explicitly modeled can indicate whether or not the model performs well.   Such checks, known as posterior predictive checks, should ideally compare measurements which are related to the researchers' objectives.
 
 \subsection{Test Quantities}
-There are two particular features of the original data which are important to capture in the modeling process: the relatively large number of zeros, and the maximum infected count.  A model incorporating either of these features separately would be relatively straightforward to fit, but capturing both simultaneously takes more consideration.  Since the extreme values of the data are of primary concern here, the mean is not a useful metric.  In order to ascertain whether or not the model did in fact capture these aspects of the data, posterior predictive checks for the number of predicted zeros and predicted maximum were performed.  The relationship between predicted counts and the original counts can be visualized using a scatterplot.
+There are two particular features of the original data which are important to capture in the modeling process: the relatively large number of zeros, and the maximum infected count.  A model incorporating either of these features separately would be relatively straightforward to fit, but capturing both simultaneously takes more consideration.  Since the extreme values of the data are of primary concern here, the mean is not a useful metric.  In order to ascertain whether or not the model did in fact capture these aspects of the data, posterior predictive checks for the number of predicted zeros (figure 7 TODO) and predicted maximum (figure 8 TODO) were performed.  The relationship between predicted counts and the original counts can be visualized using a scatterplot (figure 9 TODO).
 
 Posterior predictive checks need not only be used to make graphical comparisons.  Meaningful aspects of the data can be compared to values predicted by the model using numerical summaries.  In this study, plots with infection counts greater than 3 are of practical interest since it would represent an infection rate of more than 10\%.
 
@@ -680,35 +680,36 @@ rms <- function(ypred) {return(sqrt(mean((ypred-y)^2)))}
 rms.pred <- apply(y.pred, 1, rms)
 
 @
-<<post_pred_zeros>>=
-
+<<post_pred_plots>>=
+par(mfrow=c(1,3))
 plot(table(n.zero.pred)/sum(table(n.zero.pred)),
      lwd = 3, xlim = c(15, 55), xaxt = 'n',
      main = 'Predicted Zero Counts',
      xlab = 'Number of Zeros', ylab = '')
 abline(v = sum(y==0), lty = 'dashed', lwd = 2, col = 'red')
 axis(1, seq(15, 55, 5))
-@
-<<post_pred_max>>=
 
 plot(table(max.pred), xlim = c(6, 22), lwd = 3, xaxt = 'n',
      main = 'Predicted Maxima',
      xlab = 'Maximum', ylab = '')
 abline(v = max(y), lty = 'dashed', lwd = 2, col = 'red')
 axis(1, 6:22)
-@
 
-<<post_pred_scatt>>=
-plot(x=y, y=y, xlim = c(0, max(y.pred) + 1), ylim=c(0, max(y.pred) + 1),
+plot(x=y, y=y, xlim = c(0, max(y.pred) + 1), ylim=c(0, 12),
      type="n", xlab = expression(y[pred]), ylab = "y")
 for(i in 1:nrow(y.pred))
 {
   points(x=y.pred[i,], y=y, pch=21, col=rgb(0.3, 0.3, 1), bg = rgb(0, 1, 0, 0.004))
 
 }
-  abline(a=0, b=1, col=rgb(1, 0, 0), lwd = 3, lty = "dashed")
+abline(a=0, b=1, col=rgb(1, 0, 0), lwd = 3, lty = "dashed")
+par(mfrow=c(1,1))
 @
 
+<<predictive_numerical>>=
+y.g3 <- mean(y > 3)
+yp.g3 <- mean(y.pred > 3)
+@
 
 
 
