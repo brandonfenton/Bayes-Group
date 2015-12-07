@@ -468,10 +468,11 @@ Further, a Bayesian analysis will produce a distribution with which inferences c
 Finally, it can be very difficult in some instances to fit a generalized linear mixed model in R.  While an analogous Bayesian model might require more lines of code to set up, doing so can at times be a more logical and straightforward process.  And once the model has been set up, there is again a much larger set of ways in which it can be used.
 
 \subsection{Priors}
-As described in Section 6.1, the use of Bayesian analysis involves prior distributions. In practice, not much is known as to what distribution the parameters, themselves, actually follow. But, hey, we don't actually need to know! We ultimately want the data to make the most impact on the posterior distribution we obtain, so our decisions on what priors we use are really just to get the ball rolling, so to speak.
+As described in Section 6.1, the use of Bayesian analysis requires a prior distribution to be chosen for each parameter. Often not much is known about the distribution of each parameter, but to the degree that there is some preexisting knowledge this can guide the choice of prior.  Regardless, it is desirable for the data to have as large an impact on the outcome of the analysis as is reasonable; a well-chosen prior should serve to permit unusual outcomes and prohibit impossible outcomes.  
 
-A natural choice for many who implement a Bayesian analysis is to use what is called a noninformative prior. It is noninformative in the sense that is has the largest possible variance. This variance allows for the parameter to be from anywhere the distribution is defined. Another choice is to use a minimally informative prior. There are typically some natural limits as to what that parameter could be.
+A natural choice for many who implement a Bayesian analysis is to use what is called a noninformative prior. A noninformative prior is "noninformative" in the sense that ideally it should not contain any subjective information about the parameter.  If there is subjective information about the parameter, whether it takes the form of a belief or prior knowledge, an analysis can be improved by including this information in the form of an informative prior.  A compromise between these two extremes is to utilize a weakly informative prior, which will include enough subjective information to constrain posterior distributions to what is reasonable.
 
+TODO: change/add to the stuff below
 There are some benefits to the choices of priors, such as conjugacy (but that doesn't come into play here as much).
 
 \subsection{The Bayesian Model}
