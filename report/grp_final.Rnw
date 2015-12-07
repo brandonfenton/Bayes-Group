@@ -411,12 +411,9 @@ As nitrogen and inoculation were pre-assigned to plots, they are treated as cons
 require(lme4)
 
 ## Fit the model using glm.
-glm.mod <- glmer(cbind(infected,uninfected) ~ (nit+ino)^2 + (1|blk/vty),
-                 data=od, family=binomial(link = "logit"),
-                 control=glmerControl(optimizer="bobyqa"))
-
-lasthope <- glmer(formula = cbind(infected, uninfected) ~ (nit + ino)^2 + 
-          (1 | blk/vty) + (1|blk:nit) + (1|blk:ino) + (1|vty:nit) + (1|vty:ino), 
+glm.mod <- glmer(formula = cbind(infected, uninfected) ~ (nit + ino)^2 + 
+          (1 | blk/vty) + (1|blk:nit) + (1|blk:ino) + (1|vty:nit) + (1|vty:ino) +
+          (1 | vty:nit:ino) + (1 | blk:nit:ino) + (1 | blk:vty:nit) + (1 | blk:vty:ino), 
           data = od, family = binomial(link = "logit"), 
       control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2000)))
 ## Produce summary output for the model.
