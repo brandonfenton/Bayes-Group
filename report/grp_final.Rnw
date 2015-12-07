@@ -371,34 +371,14 @@ axis(4)
 
 \section{Generalized Linear Mixed Model}
 
-The most common way to analyze data from a split-plot experiment is to use a linear mixed model. In this situation, the response variable is a Binomial count, so a generalized linear mixed model is used. This approach uses nested batches of coefficients to model the structure of the experimental design. These coefficients are considered to be varying members of a population, and so a scale parameter is estimated for each batch. The parameters are estimated by maximizing the likelihood function.
+The most common way to analyze data from a split-plot experiment is to use a linear mixed model. In this situation, the response variable is a Binomial count, so a generalized linear mixed model is used. This approach uses nested batches of coefficients to model the structure of the experimental design. These coefficients are considered to be varying members of a population, and so a scale parameter is estimated for each batch. The parameters are estimated by maximizing the likelihood function. The \texttt{glmer} function from the \texttt{lme4} R package will be used.
 
 \subsection{Likelihood}
-The likelihood function provides a relative measure of how well a possible
-value of the parameter \(\theta\) fits with the observed data \(y\), and
-so it can be used to identify the value of \(\theta\) that is then used
-as the estimate most consistent with \(y\). The likelihood function takes
-its form from the probability model for \(y\), denoted \(p(y|\theta)\).
-However, we discuss likelihoods after the data have been collected so we
-consider \(y\) to be fixed and we examine how \(p(y|\theta)\) varies as a
-function of \(\theta\).
+The likelihood function provides a relative measure of how well a possible value of a parameter \(\theta\) fits with the observed data \(y\), and so it can be used to identify the value of \(\theta\) that is then used as the estimate most consistent with \(y\). The likelihood function takes its form from the probability model for \(y\), denoted \(p(y|\theta)\). However, we discuss likelihoods after the data have been collected so we consider \(y\) to be fixed and we examine how \(p(y|\theta)\) varies as a function of \(\theta\).
 
-Since \(p(y|\theta)\) is the probability of observing \(y\) for a given
-\(\theta\), a \(\theta\) where \(p(y|\theta)\) is large is more
-consistent with the obeserved data than a \(\theta\) value that makes
-\(p(y|\theta)\) small. Then a reasonable approach to estimating
-\(\theta\) is to find the value of \(\theta\) that maximizes
-\(p(y|\theta)\) for the observed \(y\).
+Since \(p(y|\theta)\) is the probability of observing \(y\) for a given \(\theta\), a \(\theta\) where \(p(y|\theta)\) is large is more consistent with the obeserved data than a \(\theta\) value that makes \(p(y|\theta)\) small. Then a reasonable approach to estimating \(\theta\) is to find the value of \(\theta\) that maximizes \(p(y|\theta)\) for the observed \(y\).
 
-
-Note that the likelihood function depends on the particular data
-that were observed. The data \(y'\) could very well have been collected
-instead of \(y\), and then the likelihood function would be
-\(p(y'|\theta)\), which might be maximized by a different \(\theta\) value
-than the \(\theta\) value the maximizes \(p(y|\theta)\). If we consider
-how this estimate of \(\theta\) will vary between different samples,
-we can construct a probability distribution.
-
+Note that the likelihood function depends on the particular data that were observed. The data \(y'\) could very well have been collected instead of \(y\), and then the likelihood function would be \(p(y'|\theta)\), which might be maximized by a different \(\theta\) value than the \(\theta\) value the maximizes \(p(y|\theta)\). If we consider how this estimate of \(\theta\) will vary between different samples, we can construct a probability distribution.
 
 \subsection{Likelihood Principle}
 The idea behind the likelihoodist approach to making inference stems from the Likelihood Principle. A likelihoodist believes that given a statistical (probability) model, all of the information in a sample relevant to model parameters is contained in the likelihood function. The benefit to using the maximum likelihood estimate (MLE) is that, assuming the model is correct, the sample size is large enough and the sampling method is unbiased, then  the MLEs are unbiased, the standard deviations of the sampling distributions of the estimators are easy to formulate, the estimators have relatively high precision, and the shapes of the sampling distribution are approximately normal (The Statistical Sleuth, page 611).
@@ -426,13 +406,24 @@ glm.mod <- glmer(formula = cbind(infected, uninfected) ~ (nit + ino)^2 +
 
 \subsection{Results}
 
+<<display_output,cache=TRUE,dependson='glmm'>>=
+xtable(summary(glm.mod)$coefficient,
+       caption = 'TODO',
+       label = 'fixef')
+xtable(as.data.frame(summary(glm.mod)$varcor)[,c(1,4,5)],
+       caption = 'TODO',
+       label = 'ranef')
+@
+
 \begin{figure}[H]
 <<someoutput,echo=FALSE,out.height='0.5\\linewidth',fig.height=5,cache=TRUE,dependson='glmm'>>=
 require(gridExtra)
 require(lattice)
-grid.arrange(dotplot(ranef(glm.mod, condVar = TRUE))[[1]],
-             dotplot(ranef(glm.mod, condVar = TRUE))[[7]],
-             ncol = 2)
+plot1 <- dotplot(ranef(glm.mod, condVar = TRUE),
+                 scales = list(y = list(draw = FALSE)))[[7]]
+plot2 <- dotplot(ranef(glm.mod, condVar = TRUE),
+                 scales = list(y = list(draw = FALSE)))[[1]]
+grid.arrange(plot1, plot2, ncol = 2)
 @
 \caption{TODO}
 \label{someoutput}
@@ -480,7 +471,7 @@ Further, a Bayesian analysis will produce a distribution with which inferences c
 Finally, it can be very difficult in some instances to fit a generalized linear mixed model in R.  While an analogous Bayesian model might require more lines of code to set up, doing so can at times be a more logical and straightforward process.  And once the model has been set up, there is again a much larger set of ways in which it can be used.
 
 \subsection{Priors}
-As described in Section 6.1, the use of Bayesian analysis requires a prior distribution to be chosen for each parameter. Often not much is known about the distribution of each parameter, but to the degree that there is some preexisting knowledge this can guide the choice of prior.  Regardless, it is desirable for the data to have as large an impact on the outcome of the analysis as is reasonable; a well-chosen prior should serve to permit unusual outcomes and prohibit impossible outcomes.  
+As described in Section 6.1, the use of Bayesian analysis requires a prior distribution to be chosen for each parameter. Often not much is known about the distribution of each parameter, but to the degree that there is some preexisting knowledge this can guide the choice of prior.  Regardless, it is desirable for the data to have as large an impact on the outcome of the analysis as is reasonable; a well-chosen prior should serve to permit unusual outcomes and prohibit impossible outcomes.
 
 A natural choice for many who implement a Bayesian analysis is to use what is called a noninformative prior. A noninformative prior is "noninformative" in the sense that ideally it should not contain any subjective information about the parameter.  If there is subjective information about the parameter, whether it takes the form of a belief or prior knowledge, an analysis can be improved by including this information in the form of an informative prior.  A compromise between these two extremes is to utilize a weakly informative prior, which will include enough subjective information to constrain posterior distributions to what is reasonable.
 
