@@ -1,4 +1,4 @@
-\documentclass[11pt]{article}
+\documentclass[11pt,titlepage]{article}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% packages
 \usepackage{float} % for better behaved floats
@@ -49,7 +49,7 @@
 
 \maketitle
 \tableofcontents
-% \newpage
+\pagebreak
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% R code options
 <<setup, include=FALSE, cache=FALSE>>=
@@ -102,7 +102,7 @@ options(mc.cores = parallel::detectCores())
 
 
 \section{Introduction}
-Bayesian inference is becoming a popular topic as of late; such is the case for fields like Ecology. However, the practice of Bayesian data analyis is rarely utilized in the Consulting Seminar for clients because few are familiar with the methodology. We hope to illustrate that, while Bayesian data analysis may be less familiar than its likelihood or frequentist counterparts, it can provide results when other approaches do not. Additionally, it is our goal to provide easy to understand implementations of Bayesian inference. This report will implement both a likelihoodist and Bayesian approach in order to compare results.
+Bayesian inference is becoming a popular topic as of late; such is the case for fields like Ecology. However, Bayesian data analysis is rarely utilized in the Consulting Seminar because few clients are familiar with the methodology. We hope to illustrate that, while Bayesian data analysis may be less familiar than its likelihood or frequentist counterparts, it can provide results when other approaches do not. Additionally, it is our goal to provide easy-to-understand implementations of Bayesian inference. This report will implement both a likelihoodist and Bayesian approach in order to compare results.
 
 \section{Objectives}
 Researchers are interested in the effect of the timing of a nitrogen treatment on the rate of Wheat Streak Mosaic Virus infection for several varieties of winter wheat. It is also of interest to see whether the strength of the effect differs between different varieties, or between environments where the virus is present in high levels versus low level. In this report, we will demonstrate the Analysis of Variance to determine which variables and interaction are the most important in explaining variation in infection rate.
@@ -294,12 +294,10 @@ where \(b=1,2,\dots,6\) indexes the blocks; \(i=1\) indicates non-inoculated sta
 
 In the above model, each \(\beta^{(k)}_{(\cdot)}\) is a member of a batch of coefficients sharing a common Normal distribution with a scale parameter \(\sigma_k\). The analysis of variance is less concerned with the values of particular coefficients than with the contribution of each batch to the total variation of the data, so the blocks, varieties, and nitrogen application times can be thought of as random samples from populations.
 
-To understand the model, it is helpful to think about the process that would generate the data, and then simulate data from that process. There is some overall infection rate for the population of all winter wheat plants. Plants in inoculated plots will have higher infection rates than plants in plots that were not inoculated. Characteristics like variety, timing of the nitrogen application, and environmental conditions (for which block is a proxy) cause variation about the overall mean. If a certain characteristic, such as the variety, has a large influence on the infection rate, then it
+To understand the model, it is helpful to think about the process that would generate the data, and then simulate data from that process. There is some overall infection rate for the population of all winter wheat plants. Plants in inoculated plots will have higher infection rates than plants in plots that were not inoculated. Characteristics like variety, timing of the nitrogen application, and environmental conditions (for which block is a proxy) cause variation about the overall mean. If a certain characteristic, such as the variety, has a large influence on the infection rate, then the coefficients in batches associated with variety will have a large amount of variation and a high standard deviation.
 
-Since infection is an uncommon event, an overall infection rate of 5\% could be expected.
+Since infection is an uncommon event, an overall infection rate of 5\% could be expected. For the simulation, we set \(\mu=-3\) because \(\mathrm{logit}(0.05)\approx -3\). Inoculated plots will have higher infection rates than non-inoculated plots, so \(\beta^{(4)}_2=0.5\) and \(\beta^{(4)}_1=-0.5\) were used to give baseline infection rates of about 8\% and 3\% in inoculated and non-inoculated plots, respectively.
 
-Given the study design we'd expect roughly 5\% of the leaves collected to be infected.
-With this in mind, an intercept value of -3 was chosen since $\text{logit}(0.05)\approx-3$.
 For each batch of coefficients, values were generated via random draws from normal distributions
 centered at zero. Variances were chosen for each effect to reflect our beliefs about the importance
 of that effect on the response.  We have provided code so that all details and steps of the process
