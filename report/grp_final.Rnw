@@ -291,7 +291,7 @@ y_j &\sim \text{Bin}(30,\pi_j), \ \text{for} \ j=1,2,\dots,180; \\
 \beta^{(k)}_{(\cdot)}&\sim\mathrm{N}(0,\sigma^2_k),
 \ \text{for} \ k=1,2,\dots,14;
 \end{align*}
-where \(b=1,2,\dots,6\) indexes the blocks; \(i=1\) indicates non-inoculated status and \(i=2\) indicates inoculated status; \(n=1,2,3\) indicate early, mid, and late nitrogen application, respectively; \(v=1,2,\dots,5\) indexes the varieties.
+where \(b=1,2,\dots,6\) indexes the blocks;  \(v=1,2,\dots,5\) indexes the varieties; \(i=1\) indicates non-inoculated status and \(i=2\) indicates inoculated status; \(n=1,2,3\) indicate early, mid, and late nitrogen application, respectively.
 
 In the above model, each \(\beta^{(k)}_{(\cdot)}\) is a member of a batch of coefficients sharing a common Normal distribution with a scale parameter \(\sigma_k\). The analysis of variance is less concerned with the values of particular coefficients than with the contribution of each batch to the total variation of the data, so the blocks, varieties, and nitrogen application times can be thought of as random samples from populations.
 
@@ -301,7 +301,7 @@ Since infection is an uncommon event, an overall infection rate of 5\% could be 
 
 For each batch, values of the coefficients were generated via random draws from normal distributions centered at zero. Standard deviations were chosen for each effect to reflect our beliefs about the importance of that effect on the infection rate. Variety, nitrogen timing, and interactions involving inoculation should have high variation, so the values \(\sigma_2=0.3\), \(\sigma_5=0.4\), \(\sigma_8=0.03\), \(\sigma_9=0.03\), and \(\sigma_{14}=0.001\) were used. Other batches were given relatively small standard deviations.
 
-We have provided code so that all details and steps of the process are available and reproducible. The simulated leaf counts are illustrated in Figure~\ref{heatmap}.
+We have provided code so that all details and steps of the process are available and reproducible. The overall infected leaf counts can be seen in Figure~\ref{simplot}. A more detailed visualization of these counts at the plot level is provided in Figure~\ref{heatmap}.
 
 \begin{figure}[H]
 <<simulation_plot,out.width="0.4\\linewidth",fig.width=4,cache=TRUE,dependson='data_simulation'>>=
@@ -383,12 +383,10 @@ Note that the likelihood function depends on the particular data that were obser
 \subsection{Likelihood Principle}
 The idea behind the likelihoodist approach to making inference stems from the Likelihood Principle. A likelihoodist believes that given a statistical (probability) model, all of the information in a sample relevant to model parameters is contained in the likelihood function. The benefit to using the maximum likelihood estimate (MLE) is that, assuming the model is correct, the sample size is large enough and the sampling method is unbiased, then  the MLEs are unbiased, the standard deviations of the sampling distributions of the estimators are easy to formulate, the estimators have relatively high precision, and the shapes of the sampling distribution are approximately normal (The Statistical Sleuth, page 611).
 
-\subsection{Likelihood to GLMER}
-The likelihoodist approach to making inferences about split-plot experiments requires the use of linear mixed models.
-In this case we are analyzing simulated count data, so a generalized linear mixed model is appropriate.
-The \texttt{glmer()} function from the \texttt{lme4} package in the base R distribution was used to fit this model.
+\subsection{Fitting the Model in GLMER}
 
 As nitrogen and inoculation were pre-assigned to plots, they are treated as constants (in other words, fixed effects).  Block and variety levels can be considered as members of a larger population, and as a result will be treated as a varying, or random, effect.
+
 <<glmm, eval=TRUE,cache=TRUE,dependson='data_simulation'>>=
 ## The lme4 package has the glmer function.
 require(lme4)
@@ -406,11 +404,17 @@ glm.mod <- glmer(formula = cbind(infected, uninfected) ~ (nit + ino)^2 +
 
 \subsection{Results}
 
+Using the GLMM approach with standard statisitical software yields results that can be confusing and extremely difficult to interpret. Tables~\ref{fixef} and \ref{ranef} show the default output from the \texttt{glmer} object. It is inappropriate to compute an \(F\)-statistic for the Binomial setting as the model does not include a residual error term to provide a denomiator. The reported standard deviations of zero for the varying terms are not believable. Two batches have larger standard deviations. A plot of the varying coefficients within those two batches (Figure~\ref{someoutput}) shows that all confidence intervals include zero. This suggests that there is very little variability, but we would not conclude that all of the coefficients are in fact 0.
+
+The output does provide the information that nitrogen application time, inoculation, the variety by nitrogen timing interaction, and the block by variety by nitrogen timing interaction contribute to the variation in the observed count; however, the presentation is convoluted.
+
 <<display_output,cache=TRUE,dependson='glmm'>>=
-print(xtable(summary(glm.mod)$coefficient[,c('Estimate', 'Std. Error')],
-             caption = 'Estimated coefficients for the constant terms.',
-             label = 'fixef', digits = c(0, 3, 4)))
-sumtable <- as.data.frame(summary(glm.mod)$varcor)[,c('grp', 'sdcor')]
+anovatab <- anova(glm.mod)
+print(xtable(anovatab,
+             caption = 'ANOVA table for the constant terms.',
+             label = 'fixef', digits = c(0, 0, 2, 2, 2)),
+      include.rownams = false)
+sumtable <- as.data.frame(summary(glm.mod)$varcor)[10:1, c('grp', 'sdcor')]
 colnames(sumtable) <- c('Batch', 'Std. Dev.')
 print(xtable(sumtable,
              caption = 'Estimated standard deviations of the varying terms.',
@@ -486,21 +490,6 @@ The model we have gone with is yada, yada, yada.
 {\it Discuss the priors we chose here or create a subsection?}
 
 The Normal probability distributions for each effect is a natural choice. Each centered at 0 as they will be adjustments on the overall mean. The half cauchy is a solid choice as argued by Gelman et al in a ``Weakly Informative Paper''. The spread of 3 allows for the effects to differ by an effect size of 18, which on the logit scale is enormous, as argued by some page in BDA3.
-
-\subsection{McSTANislaw McUlam}
-When conjugate priors are used we have the benefit of knowing the  distribution of the posterior. However, given the large capacity of parameters in the model we have fit and the prior distributions chosen, the posterior is not as straightforward. This would result in very intensive, and possibly lack of computing power, calculations to determine $p(y)$ -- the denominator in Section 6.1. However, there is a very convenient way around this issue.
-
-Markov Chain Monte Carlo (MCMC) is the process of jumping around the parameter space in order to obtain draws from some target distribution (in this case the posterior distribution). As with all fields of mathematics and statistics we put our trust in the infinite; in that, it is the belief that if we were to sample enough times we will have converged on to a distribution that is the true posterior.
-
-R isn't the fastest of programming environments, and given the quantity of parameters we hope to estimate, it would run slowly. The way we can harness the power of MCMC will be through STAN, which adapts the code to run in C -- much faster. There are alternative out there, but this one is rather brilliant. STAN uses a type of MCMC algorithm called Hamiltonian something or another which jumps around the parameter space very efficiently, like a marble rolling up, down, and around a bowl.
-
-\subsection{Written model to STAN models}
-We can take the model written above and transform it into computing lingo for STAN.
-
-\subsection{Other compilers?}
-There is also BUGS, JAGS, and BayesGlm. There is a website to help you choose priors, maybe?
-
-\section{Posterior Inferences}
 
 <<stop_the_errors,cache=TRUE>>=
 # Numbers of observations
@@ -613,8 +602,6 @@ sens <- lapply(scales, function(scale){
 
 @
 
-\pagebreak
-
 \begin{figure}[H]
 <<sens_analysis, fig.width=9, fig.height=12, out.width="\\textwidth", out.height="0.95\\textheight",cache=TRUE,dependson="stop_the_errors">>=
 sensitivity.plot <- function(stan.list, pars, vals, xmin = 0, xmax = 1,
@@ -656,6 +643,100 @@ sensitivity.plot(sens, params, scales, xmax = xlims, ylab = 'Prior Scale')
 @
 \caption{TODO}
 \label{sens_plot}
+\end{figure}
+
+\subsection{McSTANislaw McUlam}
+When conjugate priors are used we have the benefit of knowing the  distribution of the posterior. However, given the large capacity of parameters in the model we have fit and the prior distributions chosen, the posterior is not as straightforward. This would result in very intensive, and possibly lack of computing power, calculations to determine $p(y)$ -- the denominator in Section 6.1. However, there is a very convenient way around this issue.
+
+Markov Chain Monte Carlo (MCMC) is the process of jumping around the parameter space in order to obtain draws from some target distribution (in this case the posterior distribution). As with all fields of mathematics and statistics we put our trust in the infinite; in that, it is the belief that if we were to sample enough times we will have converged on to a distribution that is the true posterior.
+
+R isn't the fastest of programming environments, and given the quantity of parameters we hope to estimate, it would run slowly. The way we can harness the power of MCMC will be through STAN, which adapts the code to run in C -- much faster. There are alternative out there, but this one is rather brilliant. STAN uses a type of MCMC algorithm called Hamiltonian something or another which jumps around the parameter space very efficiently, like a marble rolling up, down, and around a bowl.
+
+\subsection{Written model to STAN models}
+We can take the model written above and transform it into computing lingo for STAN.
+
+\subsection{Other compilers?}
+There is also BUGS, JAGS, and BayesGlm. There is a website to help you choose priors, maybe?
+
+\section{Posterior Inferences}
+
+\subsection{Bayesian ANOVA}
+
+\begin{figure}[H]
+<<bayes_anova,out.height='0.5\\linewidth',fig.height=4,fig.width=8,cache=TRUE,dependson='stop_the_errors'>>=
+# Gelman ANOVA plot for superpop sds
+batches <- c('block',
+              NA,
+              'variety',
+              'block * variety',
+              NA,
+              'inoculation',
+              'nitrogen',
+              NA,
+              'block * inoculation',
+              'block * nitrogen',
+              'inoculation * nitrogen',
+              'inoculation * variety',
+              'nitrogen * variety',
+              NA,
+              'block * inoculation * nitrogen',
+              'block * inoculation * variety',
+              'block * nitrogen * variety',
+              'inoculation * nitrogen * variety')
+superpop.sds <- c("sigma_b", NA,
+                   "sigma_v",
+                   "sigma_bv", NA,
+                   "sigma_i", "sigma_n", NA,
+                   "sigma_bi", "sigma_bn", "sigma_ni",
+                   "sigma_vi", "sigma_vn", NA,
+                   "sigma_bni", "sigma_bvi",
+                   "sigma_bvn", "sigma_vni")
+dfs <- c(n.b, NA, n.v, n.bv, NA, n.i, n.n, NA, n.bi, n.bn, n.ni,
+          n.vi, n.vn, NA, n.bni, n.bvi, n.bvn, n.vni) - 1
+anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
+                           inner = 0.5, outer = 0.95,
+                           width = c(7, 1, 22)){
+# Creates a caterpillar plot comparing posterior intervals for each of
+# several parameters for several values of one hyperparameter.
+#  stan.fit  A stan_fit objects
+#  sources   Character vector of batches being analyzed
+#  sds       Character vector of the scale parameters being analyzed
+#  dfs       Numeric vector of degrees of freedom for each batch
+#  inner     Confidence lever for outer interval
+#  outer     Confidence level for outer interval
+#  width     Numeric vector of widths to send to layout()
+  layout(matrix(1:3, nrow = 1), width = width)
+  # Sources
+  par(mar = c(4.1, 1.1, 5.1, 1.1))
+  plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'Source',
+       xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE)
+  text(x = 1, y = 1:length(sources), labels = sources, pos = 2, offset = 0)
+  # dfs
+  par(mar = c(4.1, 0, 5.1, 0))
+  plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'df',
+       xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE)
+  text(x = 1, y = 1:length(sources), labels = dfs, pos = 2, offset = 0)
+  # SDs
+  par(mar = c(4.1, 0, 5.1, 1.1))
+  plot(NULL, xlim = xlim, ylim = c(length(sds), 1), frame.plot = FALSE,
+       main = 'Posterior sd of Effects', xlab = '', ylab = '', yaxt = 'n')
+  axis(3)
+  for(j in 1:length(sources)){
+    if(!is.na(sources[j])){
+      current <- unlist(extract(stan.fit, pars = sds[j]))
+      segments(x0 = quantile(current, c((1-outer)/2, (1-inner)/2)),
+               x1 = quantile(current, 1-c((1-outer)/2, (1-inner)/2)),
+               y0 = j, lwd = c(1, 3))
+      points(x = median(current), y = j, pch = '|')
+    }
+  }
+  abline(v = 0)
+}
+
+anova.superpop(od.stan, batches, superpop.sds, dfs, xlim = c(0, 10))
+@
+\caption{Visual presentation of an analysis of variance for the Bayesian model.}
+\label{anova}
 \end{figure}
 
 \section{Posterior Predictive Check}
@@ -730,85 +811,6 @@ par(mfrow=c(1,1))
 In Figure~\ref{post_pred} (left), the vertical dashed line represents the number of zeros in the original data.  The observed zero count is plausible under the distribution of posterior predictive zero counts, suggesting that the model has adequately captured this characteristic of the data.  Likewise, in figure 4 (center) it is apparent that the model was able to reproduce the maximum value of infected leaf counts in the data.  The scatterplot in Figure~\ref{post_pred} (right) shows a tendency for this model to slightly overpredict infected leaf counts, but examining the shading of the dots shows that an overwhelming majority of posterior predictive counts resemble the original data.
 
 Posterior predictive checks need not only be used to make graphical comparisons.  Meaningful aspects of the data can be compared to values predicted by the model using numerical summaries.  In this study, plots with infection counts greater than three are of practical interest since it would represent an infection rate of more than 10\%. In the posterior predictions generated, the probability of an infected leaf count greater than three for a plot is $\Sexpr{yp.g3}$, which is fairly close to the observed proportion of $\Sexpr{y.g3}$.  A calculation of absolute error produces an average infected leaf count difference of $\Sexpr{m.abs.err.pred}$ with a 95\% posterior predictive interval of $(\Sexpr{abs.err.int[1]},\Sexpr{abs.err.int[2]})$.
-
-
-\section{Bayesian ANOVA}
-
-\begin{figure}[H]
-<<bayes_anova,out.height='0.5\\linewidth',fig.height=4,fig.width=8,cache=TRUE,dependson='stop_the_errors'>>=
-# Gelman ANOVA plot for superpop sds
-batches <- c('block',
-              NA,
-              'variety',
-              'block * variety',
-              NA,
-              'inoculation',
-              'nitrogen',
-              NA,
-              'block * inoculation',
-              'block * nitrogen',
-              'inoculation * nitrogen',
-              'inoculation * variety',
-              'nitrogen * variety',
-              NA,
-              'block * inoculation * nitrogen',
-              'block * inoculation * variety',
-              'block * nitrogen * variety',
-              'inoculation * nitrogen * variety')
-superpop.sds <- c("sigma_b", NA,
-                   "sigma_v",
-                   "sigma_bv", NA,
-                   "sigma_i", "sigma_n", NA,
-                   "sigma_bi", "sigma_bn", "sigma_ni",
-                   "sigma_vi", "sigma_vn", NA,
-                   "sigma_bni", "sigma_bvi",
-                   "sigma_bvn", "sigma_vni")
-dfs <- c(n.b, NA, n.v, n.bv, NA, n.i, n.n, NA, n.bi, n.bn, n.ni,
-          n.vi, n.vn, NA, n.bni, n.bvi, n.bvn, n.vni) - 1
-anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
-                           inner = 0.5, outer = 0.95,
-                           width = c(7, 1, 22)){
-# Creates a caterpillar plot comparing posterior intervals for each of
-# several parameters for several values of one hyperparameter.
-#  stan.fit  A stan_fit objects
-#  sources   Character vector of batches being analyzed
-#  sds       Character vector of the scale parameters being analyzed
-#  dfs       Numeric vector of degrees of freedom for each batch
-#  inner     Confidence lever for outer interval
-#  outer     Confidence level for outer interval
-#  width     Numeric vector of widths to send to layout()
-  layout(matrix(1:3, nrow = 1), width = width)
-  # Sources
-  par(mar = c(4.1, 1.1, 5.1, 1.1))
-  plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'Source',
-       xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE)
-  text(x = 1, y = 1:length(sources), labels = sources, pos = 2, offset = 0)
-  # dfs
-  par(mar = c(4.1, 0, 5.1, 0))
-  plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'df',
-       xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE)
-  text(x = 1, y = 1:length(sources), labels = dfs, pos = 2, offset = 0)
-  # SDs
-  par(mar = c(4.1, 1.1, 5.1, 1.1))
-  plot(NULL, xlim = xlim, ylim = c(length(sds), 1),
-       main = 'Posterior sd of Effects', xlab = '', ylab = '', yaxt = 'n')
-  axis(3)
-  for(j in 1:length(sources)){
-    if(!is.na(sources[j])){
-      current <- unlist(extract(stan.fit, pars = sds[j]))
-      segments(x0 = quantile(current, c((1-outer)/2, (1-inner)/2)),
-               x1 = quantile(current, 1-c((1-outer)/2, (1-inner)/2)),
-               y0 = j, lwd = c(1, 3))
-      points(x = median(current), y = j, pch = '|')
-    }
-  }
-}
-
-anova.superpop(od.stan, batches, superpop.sds, dfs, xlim = c(0, 10))
-@
-\caption{TODO}
-\label{anova}
-\end{figure}
 
 \section{Model Comparison}
 -code complexity
