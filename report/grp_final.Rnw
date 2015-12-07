@@ -437,15 +437,15 @@ There is also BUGS, JAGS, and BayesGlm. There is a website to help you choose pr
 
 
 \section{Posterior Predictive Check}
--
-Ideas:
-\begin{itemize}
-\item counting number of zeros \checkmark
-\item maximum \checkmark
-\item pearson residuals
-\item RMS density/hist
-\item $y_{pred}$ versus $y_{sim}$ scatterplot
-\end{itemize}
+\subsection{Overview}
+
+\subsection{Meaningful quantities}
+There are two particular features of the original data which are important to capture in the modeling process: the relatively large number of zeros, and the maximum infected count.  A model incorporating either of these features separately would be relatively straightforward to fit, but capturing both simultaneously takes more consideration.  Since the extreme values of the data are of primary concern here, the mean is not a useful metric.  In order to ascertain whether or not the model did in fact capture these aspects of the data, posterior predictive checks for the number of predicted zeros and predicted maximum were performed.  The relationship between predicted counts and the original counts can be visualized using a scatterplot.
+
+Posterior predictive checks need not only be graphical.  Meaningful aspects of the data can be compared to values predicted by the model using numerical summaries.  In this study, plots with infection counts greater than 3 are of practical interest since it would represent an infection rate of more than 10\%.
+
+\subsection{Implementation}
+
 
 <<posterior_prediction_setup>>=
 # Get the one Stan fit where we used a scale of 3
