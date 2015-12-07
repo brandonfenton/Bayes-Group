@@ -90,6 +90,7 @@ require(xtable)
 # library(mvtnorm)
 # library(coda)
 # require(geoR) # for scaled inverse chi squared
+require(dplyr)
 require(rstan)
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
@@ -615,7 +616,9 @@ sens <- lapply(scales, function(scale){
 
 @
 
-<<sens_analysis>>=
+\pagebreak
+
+<<sens_analysis, fig.width=9, fig.height=3, out.width="\\linewidth">>=
 sensitivity.plot <- function(stan.list, pars, vals, xmin = 0, xmax = 1,
                              inner = 0.5, outer = 0.95,
                              ylab = 'Hyperparameter Value', ...){
@@ -650,66 +653,85 @@ params <- c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv",
             "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni")
 xlims <- c(1, 1, 8, 20, 1, 1, 1, 1, 1, 3, 1, 1, 1, 5)
 # x11()
-par(mfrow = c(3, 5))
+par(mfrow = c(7, 2))
 sensitivity.plot(sens, params, scales, xmax = xlims, ylab = 'Prior Scale')
 @
 
 \section{Posterior Predictive Check}
+
+<<posterior_prediction_setup>>=
+# Get the one Stan fit where we used a scale of 3.
+od.stan <- sens[[3]]
+
+# Obtain posterior predictions, using probabilities from the model's posterior 
+#   distribution.
+p.stan <- extract(od.stan, pars = 'p')$p
+y.pred <- apply(p.stan, c(1, 2), function(p){return(rbinom(1, m, p))})
+
+# Calculate leaf counts of zero infected leaves for each vector in y.pred.
+n.zero.pred <- apply(y.pred, 1, function(x){return(sum(x==0))})
+
+# Calculate max infected leaf counts for each vector in y.pred.
+max.pred <- apply(y.pred, 1, max)
+
+# Calculate absolute error between y and y.pred.
+abs.err <- function(ypred) {return(mean(abs(ypred-y)))}
+abs.err.pred <- apply(y.pred, 1, abs.err)
+
+# Calculate mean and 95% posterior interval bounds for absolute error values.
+m.abs.err.pred <- round(mean(abs.err.pred), 2)
+abs.err.int <- round(quantile(abs.err.pred, c(0.025, 0.975)), 2)
+
+# Find proportion of y and y.pred counts greater than three.
+y.g3 <- round(mean(y > 3), 3)
+yp.g3 <- round(mean(y.pred > 3), 3)
+@
+
 \subsection{Overview}
 One major advantage to taking a Bayesian approach to data analysis is the inherent flexibility of Bayesian methods.  Once draws have been obtained from a posterior distribution, those draws can be used to predict new data sets which will hopefully be representative of the population from which the original data were drawn.  If this is true, then the original data should not seem extraordinary in relation to the posterior predictions.  By extension, inferences made based on the predicted values should be close to those made based on the original data.  More specifically, checking inferences about aspects of the data which were not explicitly modeled can indicate whether or not the model performs well.   Such checks, known as posterior predictive checks, should ideally compare measurements which are related to the researchers' objectives.
 
 \subsection{Test Quantities}
-There are two particular features of the original data which are important to capture in the modeling process: the relatively large number of zeros, and the maximum infected count.  A model incorporating either of these features separately would be relatively straightforward to fit, but capturing both simultaneously takes more consideration.  Since the extreme values of the data are of primary concern here, the mean is not a useful metric.  In order to ascertain whether or not the model did in fact capture these aspects of the data, posterior predictive checks for the number of predicted zeros (figure 7 TODO) and predicted maximum (figure 8 TODO) were performed.  The relationship between predicted counts and the original counts can be visualized using a scatterplot (figure 9 TODO).
+There are two particular features of the original data which are important to capture in the modeling process: the relatively large number of zeros, and the maximum infected count.  A model incorporating either of these features separately would be relatively straightforward to fit, but capturing both simultaneously takes more consideration.  Since the extreme values of the data are of primary concern here, the mean is not a useful metric.  In order to ascertain whether or not the model did in fact capture these aspects of the data, posterior predictive checks for the number of predicted zeros (figure 7 left TODO) and predicted maximum (figure 7  center TODO) were performed.  The relationship between predicted counts and the original counts can be visualized using a scatterplot (figure 7 right TODO).
 
-Posterior predictive checks need not only be used to make graphical comparisons.  Meaningful aspects of the data can be compared to values predicted by the model using numerical summaries.  In this study, plots with infection counts greater than 3 are of practical interest since it would represent an infection rate of more than 10\%.
-
-
-
-<<posterior_prediction_setup>>=
-# Get the one Stan fit where we used a scale of 3
-od.stan <- sens[[3]]
-
-# Do some posterior predictin'
-p.stan <- extract(od.stan, pars = 'p')$p
-y.pred <- apply(p.stan, c(1, 2), function(p){return(rbinom(1, m, p))})
-
-n.zero.pred <- apply(y.pred, 1, function(x){return(sum(x==0))})
-max.pred <- apply(y.pred, 1, max)
-
-rms <- function(ypred) {return(sqrt(mean((ypred-y)^2)))}
-rms.pred <- apply(y.pred, 1, rms)
-
-@
-<<post_pred_plots>>=
+<<post_pred_plots, fig.width=15>>=
+# Plot zero counts, maxes, and scatterplot of y.pred vs. y.
 par(mfrow=c(1,3))
 plot(table(n.zero.pred)/sum(table(n.zero.pred)),
      lwd = 3, xlim = c(15, 55), xaxt = 'n',
      main = 'Predicted Zero Counts',
      xlab = 'Number of Zeros', ylab = '')
-abline(v = sum(y==0), lty = 'dashed', lwd = 2, col = 'red')
-axis(1, seq(15, 55, 5))
+  abline(v = sum(y==0), lty = 'dashed', lwd = 2, col = 'red')
+  axis(1, seq(15, 55, 5))
 
 plot(table(max.pred), xlim = c(6, 22), lwd = 3, xaxt = 'n',
      main = 'Predicted Maxima',
      xlab = 'Maximum', ylab = '')
-abline(v = max(y), lty = 'dashed', lwd = 2, col = 'red')
-axis(1, 6:22)
+  abline(v = max(y), lty = 'dashed', lwd = 2, col = 'red')
+  axis(1, 6:22)
 
 plot(x=y, y=y, xlim = c(0, max(y.pred) + 1), ylim=c(0, 12),
      type="n", xlab = expression(y[pred]), ylab = "y")
-for(i in 1:nrow(y.pred))
-{
-  points(x=y.pred[i,], y=y, pch=21, col=rgb(0.3, 0.3, 1), bg = rgb(0, 1, 0, 0.004))
-
-}
-abline(a=0, b=1, col=rgb(1, 0, 0), lwd = 3, lty = "dashed")
+  for(i in 1:nrow(y.pred))
+  {
+    points(x=y.pred[i,], y=y, pch=21, col=rgb(0.3, 0.3, 1), 
+           bg = rgb(0, 1, 0, 0.004))
+  }
+  abline(a=0, b=1, col=rgb(1, 0, 0), lwd = 3, lty = "dashed")
 par(mfrow=c(1,1))
 @
 
-<<predictive_numerical>>=
-y.g3 <- mean(y > 3)
-yp.g3 <- mean(y.pred > 3)
-@
+In figure 7 (left), the vertical dashed line represents the number of zeros in the original data.  The observed zero count is plausible under the distribution of posterior predictive zero counts, suggesting that the model has adequately captured this characteristic of the data.  Likewise, in figure 7 (center) it is apparent that the model was able to reproduce the maximum value of infected leaf counts in the data.  The scatterplot in figure 7 (right) shows a tendency for this model to slightly overpredict infected leaf counts, but examining the shading of the dots shows that an overwhelming majority of posterior predictive counts resemble the original data.
+
+
+
+Posterior predictive checks need not only be used to make graphical comparisons.  Meaningful aspects of the data can be compared to values predicted by the model using numerical summaries.  In this study, plots with infection counts greater than three are of practical interest since it would represent an infection rate of more than 10\%. In the posterior predictions generated, the probability of an infected leaf count greater than three for a plot is $\Sexpr{yp.g3}$, which is fairly close to the observed proportion of $\Sexpr{y.g3}$.  A calculation of absolute error produces an average infected leaf count difference of $\Sexpr{m.abs.err.pred}$ with a 95\% posterior predictive interval of $(\Sexpr{abs.err.int[1]},\Sexpr{abs.err.int[2]})$.
+
+
+
+
+
+
+
 
 
 
