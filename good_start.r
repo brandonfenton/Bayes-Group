@@ -415,7 +415,6 @@ axis(1, 6:22)
 
 plot(x=y, y=y, type="n")
 
-
 # Gelman ANOVA plot for superpop sds
 batches3 <- c('block',
               NA,
