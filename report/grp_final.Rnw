@@ -58,9 +58,10 @@ opts_chunk$set(
   echo=FALSE,
   message=F,
   warning=F,
-  fig.width=9,
-  fig.height=6,
+  fig.width=10,
+  fig.height=3,
   out.width='\\linewidth',
+  out.height='0.3\\linewidth',
   dev='pdf',
   concordance=TRUE,
   results='asis',
@@ -305,7 +306,7 @@ of that effect on the response.  We have provided code so that all details and s
 are available and reproducible.  The simulated leaf counts can be seen in Figure~\ref{simplot}.
 
 \begin{figure}[H]
-<<simulation_plot, out.width="0.6\\linewidth">>=
+<<simulation_plot, out.width="0.4\\linewidth",fig.width=4>>=
 par(mfrow=c(1,1), mar=c(2,2,2,1))
 plot(table(y.vec), ylab = "", xlab = "")
   points(sort(unique(y.vec)), table(y.vec), pch=19, col="blue")
@@ -347,13 +348,15 @@ segments(x0 = 1.5:4.5, y0 = 0.5, y1 = 6.5, col = "white")
 # Place a title at the top, and label Varieties, treatment:status levels,
 # and blocks around the image
 title("Infection Counts", line = 4)
+mtext("Block", 3, 2)
 axis(3, labels = rep(levels(od.ordered$blk), 5), cex.axis = 0.75,
-
      # Each block is plotted in a column with width 1/6, so put the
      # labels in the middle
      at = seq(7/12, 5 + 5/12, 1/6))
+mtext("Nitrogen.Inoculation", 2, 3)
 axis(2, labels = levels(with(od.ordered, interaction(nit, ino))),
      at = 1:6, las = 2)
+mtext("Variety", 1, 2)
 axis(1, labels = levels(od.ordered$vty), at = 1:5)
 
 # Legend
@@ -415,9 +418,9 @@ glm.mod <- glmer(cbind(infected,uninfected) ~ (nit+ino)^2 + (1|blk/vty),
                  data=od, family=binomial(link = "logit"),
                  control=glmerControl(optimizer="bobyqa"))
 
-lasthope <- glmer(formula = cbind(infected, uninfected) ~ (nit + ino)^2 + 
-          (1 | blk/vty) + (1|blk:nit) + (1|blk:ino) + (1|vty:nit) + (1|vty:ino), 
-          data = od, family = binomial(link = "logit"), 
+lasthope <- glmer(formula = cbind(infected, uninfected) ~ (nit + ino)^2 +
+          (1 | blk/vty) + (1|blk:nit) + (1|blk:ino) + (1|vty:nit) + (1|vty:ino),
+          data = od, family = binomial(link = "logit"),
       control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2000)))
 ## Produce summary output for the model.
 # summary(glm.mod)
@@ -622,7 +625,8 @@ sens <- lapply(scales, function(scale){
 
 \pagebreak
 
-<<sens_analysis, fig.width=9, fig.height=3, out.width="\\linewidth">>=
+\begin{figure}[H]
+<<sens_analysis, fig.width=9, fig.height=12, out.width="\\textwidth", out.height="0.95\\textheight">>=
 sensitivity.plot <- function(stan.list, pars, vals, xmin = 0, xmax = 1,
                              inner = 0.5, outer = 0.95,
                              ylab = 'Hyperparameter Value', ...){
@@ -655,11 +659,14 @@ sensitivity.plot <- function(stan.list, pars, vals, xmin = 0, xmax = 1,
 params <- c("sigma_b", "sigma_v", "sigma_n", "sigma_i", "sigma_bv",
             "sigma_bn","sigma_bi", "sigma_vn", "sigma_vi", "sigma_ni",
             "sigma_bvn", "sigma_bvi", "sigma_bni", "sigma_vni")
+scales <- c(1, 2, 3, 5, 7, 11)
 xlims <- c(1, 1, 8, 20, 1, 1, 1, 1, 1, 3, 1, 1, 1, 5)
-# x11()
-par(mfrow = c(7, 2))
+par(mfrow = c(5, 3), mar = c(4.1, 3.1, 3.1, 1.1))
 sensitivity.plot(sens, params, scales, xmax = xlims, ylab = 'Prior Scale')
 @
+\caption{TODO}
+\label{sens_plot}
+\end{figure}
 
 \section{Posterior Predictive Check}
 
@@ -667,7 +674,7 @@ sensitivity.plot(sens, params, scales, xmax = xlims, ylab = 'Prior Scale')
 # Get the one Stan fit where we used a scale of 3.
 od.stan <- sens[[3]]
 
-# Obtain posterior predictions, using probabilities from the model's posterior 
+# Obtain posterior predictions, using probabilities from the model's posterior
 #   distribution.
 p.stan <- extract(od.stan, pars = 'p')$p
 y.pred <- apply(p.stan, c(1, 2), function(p){return(rbinom(1, m, p))})
@@ -695,9 +702,10 @@ yp.g3 <- round(mean(y.pred > 3), 3)
 One major advantage to taking a Bayesian approach to data analysis is the inherent flexibility of Bayesian methods.  Once draws have been obtained from a posterior distribution, those draws can be used to predict new data sets which will hopefully be representative of the population from which the original data were drawn.  If this is true, then the original data should not seem extraordinary in relation to the posterior predictions.  By extension, inferences made based on the predicted values should be close to those made based on the original data.  More specifically, checking inferences about aspects of the data which were not explicitly modeled can indicate whether or not the model performs well.   Such checks, known as posterior predictive checks, should ideally compare measurements which are related to the researchers' objectives.
 
 \subsection{Test Quantities}
-There are two particular features of the original data which are important to capture in the modeling process: the relatively large number of zeros, and the maximum infected count.  A model incorporating either of these features separately would be relatively straightforward to fit, but capturing both simultaneously takes more consideration.  Since the extreme values of the data are of primary concern here, the mean is not a useful metric.  In order to ascertain whether or not the model did in fact capture these aspects of the data, posterior predictive checks for the number of predicted zeros (figure 7 left TODO) and predicted maximum (figure 7  center TODO) were performed.  The relationship between predicted counts and the original counts can be visualized using a scatterplot (figure 7 right TODO).
+There are two particular features of the original data which are important to capture in the modeling process: the relatively large number of zeros, and the maximum infected count.  A model incorporating either of these features separately would be relatively straightforward to fit, but capturing both simultaneously takes more consideration.  Since the extreme values of the data are of primary concern here, the mean is not a useful metric.  In order to ascertain whether or not the model did in fact capture these aspects of the data, posterior predictive checks for the number of predicted zeros (Figure~\ref{post_pred}, left) and predicted maximum (Figure~\ref{post_pred}, center) were performed.  The relationship between predicted counts and the original counts can be visualized using a scatterplot (Figure~\ref{post_pred}, right).
 
-<<post_pred_plots, fig.width=15>>=
+\begin{figure}[H]
+<<post_pred_plots>>=
 # Plot zero counts, maxes, and scatterplot of y.pred vs. y.
 par(mfrow=c(1,3))
 plot(table(n.zero.pred)/sum(table(n.zero.pred)),
@@ -713,18 +721,23 @@ plot(table(max.pred), xlim = c(6, 22), lwd = 3, xaxt = 'n',
   abline(v = max(y), lty = 'dashed', lwd = 2, col = 'red')
   axis(1, 6:22)
 
+## It takes a bloody long time for this plot to load.
+## Maybe take a random sample of, say, 100 ypreds?
 plot(x=y, y=y, xlim = c(0, max(y.pred) + 1), ylim=c(0, 12),
      type="n", xlab = expression(y[pred]), ylab = "y")
-  for(i in 1:nrow(y.pred))
-  {
-    points(x=y.pred[i,], y=y, pch=21, col=rgb(0.3, 0.3, 1), 
-           bg = rgb(0, 1, 0, 0.004))
-  }
-  abline(a=0, b=1, col=rgb(1, 0, 0), lwd = 3, lty = "dashed")
+set.seed(8234)
+for(i in sample(nrow(y.pred), 100, replace = FALSE)){
+  points(x=y.pred[i,], y=y, pch=21, col=rgb(0.3, 0.3, 1),
+         bg = rgb(0, 1, 0, 0.004))
+}
+abline(a=0, b=1, col=rgb(1, 0, 0), lwd = 3, lty = "dashed")
 par(mfrow=c(1,1))
 @
+\caption{TODO}
+\label{post_pred}
+\end{figure}
 
-In figure 7 (left), the vertical dashed line represents the number of zeros in the original data.  The observed zero count is plausible under the distribution of posterior predictive zero counts, suggesting that the model has adequately captured this characteristic of the data.  Likewise, in figure 7 (center) it is apparent that the model was able to reproduce the maximum value of infected leaf counts in the data.  The scatterplot in figure 7 (right) shows a tendency for this model to slightly overpredict infected leaf counts, but examining the shading of the dots shows that an overwhelming majority of posterior predictive counts resemble the original data.
+In Figure~\ref{post_pred} (left), the vertical dashed line represents the number of zeros in the original data.  The observed zero count is plausible under the distribution of posterior predictive zero counts, suggesting that the model has adequately captured this characteristic of the data.  Likewise, in figure 7 (center) it is apparent that the model was able to reproduce the maximum value of infected leaf counts in the data.  The scatterplot in Figure~\ref{post_pred} (right) shows a tendency for this model to slightly overpredict infected leaf counts, but examining the shading of the dots shows that an overwhelming majority of posterior predictive counts resemble the original data.
 
 
 
@@ -741,39 +754,40 @@ Posterior predictive checks need not only be used to make graphical comparisons.
 
 \section{Bayesian ANOVA}
 
-<<bayes_anova>>=
+\begin{figure}[H]
+<<bayes_anova,out.height="0.5\\linewidth",fig.height=4,fig.width=8>>=
 # Gelman ANOVA plot for superpop sds
-batches3 <- c('block',
-              NA,
-              'variety',
-              'block * variety',
-              NA,
-              'inoculation',
-              'nitrogen',
-              NA,
-              'block * inoculation',
-              'block * nitrogen',
-              'inoculation * nitrogen',
-              'inoculation * variety',
-              'nitrogen * variety',
-              NA,
-              'block * inoculation * nitrogen',
-              'block * inoculation * variety',
-              'block * nitrogen * variety',
-              'inoculation * nitrogen * variety')
-superpop.sds3 <- c("sigma_b", NA,
-                   "sigma_v",
-                   "sigma_bv", NA,
-                   "sigma_i", "sigma_n", NA,
-                   "sigma_bi", "sigma_bn", "sigma_ni",
-                   "sigma_vi", "sigma_vn", NA,
-                   "sigma_bni", "sigma_bvi",
-                   "sigma_bvn", "sigma_vni")
-dfs3 <- c(n.b, NA, n.v, n.bv, NA, n.i, n.n, NA, n.bi, n.bn, n.ni,
-          n.vi, n.vn, NA, n.bni, n.bvi, n.bvn, n.vni) - 1
+batches <- c('block',
+             NA,
+             'variety',
+             'block * variety',
+             NA,
+             'inoculation',
+             'nitrogen',
+             NA,
+             'block * inoculation',
+             'block * nitrogen',
+             'inoculation * nitrogen',
+             'inoculation * variety',
+             'nitrogen * variety',
+             NA,
+             'block * inoculation * nitrogen',
+             'block * inoculation * variety',
+             'block * nitrogen * variety',
+             'inoculation * nitrogen * variety')
+superpop.sds <- c("sigma_b", NA,
+                  "sigma_v",
+                  "sigma_bv", NA,
+                  "sigma_i", "sigma_n", NA,
+                  "sigma_bi", "sigma_bn", "sigma_ni",
+                  "sigma_vi", "sigma_vn", NA,
+                  "sigma_bni", "sigma_bvi",
+                  "sigma_bvn", "sigma_vni")
+dfs <- c(n.b, NA, n.v, n.bv, NA, n.i, n.n, NA, n.bi, n.bn, n.ni,
+         n.vi, n.vn, NA, n.bni, n.bvi, n.bvn, n.vni) - 1
 anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
                            inner = 0.5, outer = 0.95,
-                           width = c(6, 3, 25)){
+                           width = c(7, 1, 22)){
 # Creates a caterpillar plot comparing posterior intervals for each of
 # several parameters for several values of one hyperparameter.
 #  stan.fit  A stan_fit objects
@@ -785,19 +799,19 @@ anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
 #  width     Numeric vector of widths to send to layout()
   layout(matrix(1:3, nrow = 1), width = width)
   # Sources
-  plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'Sources',
-       xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE,
-       mar = c(4.1, 1.1, 4.1, 0.1))
+  par(mar = c(4.1, 1.1, 5.1, 1.1))
+  plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'Source',
+       xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE)
   text(x = 1, y = 1:length(sources), labels = sources, pos = 2, offset = 0)
   # dfs
+  par(mar = c(4.1, 0, 5.1, 0))
   plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'df',
-       xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE,
-       mar = c(4.1, 0, 4.1, 0.1))
+       xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE)
   text(x = 1, y = 1:length(sources), labels = dfs, pos = 2, offset = 0)
   # SDs
+  par(mar = c(4.1, 1.1, 5.1, 1.1))
   plot(NULL, xlim = xlim, ylim = c(length(sds), 1),
-       main = 'Estimated sd of Effects', xlab = '', ylab = '', yaxt = 'n',
-       mar = c(4.1, 0, 4.1, 1.1))
+       main = 'Estimated sd of Effects', xlab = '', ylab = '', yaxt = 'n')
   axis(3)
   for(j in 1:length(sources)){
     if(!is.na(sources[j])){
@@ -805,14 +819,16 @@ anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
       segments(x0 = quantile(current, c((1-outer)/2, (1-inner)/2)),
                x1 = quantile(current, 1-c((1-outer)/2, (1-inner)/2)),
                y0 = j, lwd = c(1, 3))
-      points(x = median(current), y = i, pch = 20)
+      points(x = median(current), y = i, pch = 19, cex = 2)
     }
   }
 }
 
-# x11()
-anova.superpop(od.stan3, batches3, superpop.sds3, dfs3, xlim = c(0, 10))
+anova.superpop(od.stan, batches, superpop.sds, dfs, xlim = c(0, 10))
 @
+\caption{TODO}
+\label{anova}
+\end{figure}
 
 \section{Model Comparison}
 -code complexity
