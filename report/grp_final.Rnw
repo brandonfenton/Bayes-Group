@@ -472,10 +472,10 @@ probability statements about \(\theta\), and a likelihood-based
 can only be used to compare possible \(\theta\) values in the context of
 one set of observed data.
 
-\subsection{Why Choose Bayesian}
+\subsection{Advantages to Bayesian Data Analysis}
 There are many advantages to performing a Bayesian analysis. One such advantage is the ability to provide meaningful results even when there are few available observations with which to carry out inference about a given parameter.  Another is a relative robustness to unusual samples; with carefully chosen priors a Bayesian analysis can succeed here where a likelihoodist approach would utterly fail, especially in situations where the data produce an MLE value at the edge of the parameter space.
 
-Further, a Bayesian analysis will produce a distribution with which inferences can be made about a given parameter.  A likelihoodist approach of the same data would only furnish point and variance estimates.  With the availability of posterior distributions comes not only a more complete picture regarding the parameter itself, but the ability to carry out posterior predictive checks and the like.
+Further, a Bayesian analysis will produce a distribution with which inferences can be made about a given parameter.  A likelihoodist approach of the same data would only furnish point and variance estimates.  With the availability of posterior distributions comes not only a more complete picture regarding the parameter itself, but 2the ability to carry out posterior predictive checks and the like.
 
 Finally, it can be very difficult in some instances to fit a generalized linear mixed model in R.  While an analogous Bayesian model might require more lines of code to set up, doing so can at times be a more logical and straightforward process.  And once the model has been set up, there is again a much larger set of ways in which it can be used.
 
@@ -733,7 +733,7 @@ par(mfrow=c(1,1))
 \label{post_pred}
 \end{figure}
 
-In Figure~\ref{post_pred} (left), the vertical dashed line represents the number of zeros in the original data.  The observed zero count is plausible under the distribution of posterior predictive zero counts, suggesting that the model has adequately captured this characteristic of the data.  Likewise, in figure 7 (center) it is apparent that the model was able to reproduce the maximum value of infected leaf counts in the data.  The scatterplot in Figure~\ref{post_pred} (right) shows a tendency for this model to slightly overpredict infected leaf counts, but examining the shading of the dots shows that an overwhelming majority of posterior predictive counts resemble the original data.
+In Figure~\ref{post_pred} (left), the vertical dashed line represents the number of zeros in the original data.  The observed zero count is plausible under the distribution of posterior predictive zero counts, suggesting that the model has adequately captured this characteristic of the data.  Likewise, in figure 4 (center) it is apparent that the model was able to reproduce the maximum value of infected leaf counts in the data.  The scatterplot in Figure~\ref{post_pred} (right) shows a tendency for this model to slightly overpredict infected leaf counts, but examining the shading of the dots shows that an overwhelming majority of posterior predictive counts resemble the original data.
 
 Posterior predictive checks need not only be used to make graphical comparisons.  Meaningful aspects of the data can be compared to values predicted by the model using numerical summaries.  In this study, plots with infection counts greater than three are of practical interest since it would represent an infection rate of more than 10\%. In the posterior predictions generated, the probability of an infected leaf count greater than three for a plot is $\Sexpr{yp.g3}$, which is fairly close to the observed proportion of $\Sexpr{y.g3}$.  A calculation of absolute error produces an average infected leaf count difference of $\Sexpr{m.abs.err.pred}$ with a 95\% posterior predictive interval of $(\Sexpr{abs.err.int[1]},\Sexpr{abs.err.int[2]})$.
 
