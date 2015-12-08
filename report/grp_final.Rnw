@@ -653,11 +653,17 @@ For this analysis, the software package STAN was used (our implementation appear
 
 \section{Posterior Inferences}
 
-Bayesian inferences are made by summarizing the posterior distribution. This can be done with probabilities, intervals, expectations, or any other summaries that are helpful for answering the research questions.
+Bayesian inferences are made by summarizing the posterior distribution. This can be done with probabilities, intervals, expectations, or any other summaries that are helpful for answering the research questions. With a large number of coefficients, perhaps the most concise way to make inference is to summarize the contribution of each batch to the overall variation of the data. With a Bayesian posterior disribution, it is easy to describe this directly in terms of the variances or standard deviations of parameters, rather than the \(F\)-ratios of the traditional ANOVA table.
 
 \subsection{Bayesian ANOVA}
 
-The posterior distributions of scale parameters can be used to construct an analysis of variance display that is much more straightforward to understand than the ANOVA table that usually accompanies a likelihoodist or frequentist analysis of variance. Figure~\ref{anova} presents a table of posterior summaries as recommended in~\cite{anova}.
+The posterior distributions of scale parameters can be used to construct an analysis of variance display that is much more straightforward to understand than the ANOVA table that usually accompanies a likelihoodist or frequentist analysis of variance. Figure~\ref{anova} presents a table of posterior summaries as described by Gelman~\cite{anova}. The batches are grouped by level of nesting, and 50\% and 95\% posterior intervals for the standard deviations are displayed. Comparisons can be made at a glance. There was little overall variation among varieties, but Inoculation and nitrogen application time are the largest contributors to the total variation, with respective posterior median standard deviations of 1.34 and 0.84. A large amount of uncertainty is associated with the coefficients, which is manifested in the wide 95\% posterior interval reaching beyond 8. This is not surprising, since there are only two inoculation coefficients providing information about the variation in that batch.
+
+There was little variability among varieties (posterior median SD of 0.20), but variety contributed more variation than block (posterior median SD of 0.08).
+
+The inoculation by nitrogen and the inoculation by nitrogen by variety batches, with posterior median standard deviations of 0.31 and 0.30, are the most interesting interaction batches.
+
+The motivation for summarizing the standard deviations is that
 
 \begin{figure}[H]
 <<bayes_anova,out.height='0.5\\linewidth',fig.height=4,fig.width=8,cache=TRUE,dependson='stop_the_errors'>>=
@@ -703,14 +709,17 @@ anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
 #  outer     Confidence level for outer interval
 #  width     Numeric vector of widths to send to layout()
 #  digits    Number of decimal places to print medians to
-  meds <- numeric(length(sources))
+  med <- numeric(length(sources))
+  meds <- character(length(sources))
   for(j in 1:length(sources)){
     if(!is.na(sources[j])){
       current <- unlist(extract(stan.fit, pars = sds[j]))
-      meds[j] <- median(current)
+      med[j] <- median(current)
+      meds[j] <- formatC(med[j], digits = digits, flag = '#', format = 'f')
+
     }
     else{
-      meds[j] <- NA
+      med[j] <- NA
     }
   }
   layout(matrix(1:4, nrow = 1), width = width)
@@ -720,20 +729,20 @@ anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
        xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE)
   text(x = 1, y = 1:length(sources), labels = sources, pos = 2, offset = 0)
   # dfs
-  par(mar = c(4.1, 0, 5.1, 0))
+  par(mar = c(4.1, 0, 5.1, 1.1))
   plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'df',
        xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE)
   text(x = 1, y = 1:length(sources), labels = dfs, pos = 2, offset = 0)
   # Medians
-  par(mar = c(4.1, 0, 5.1, 0))
-  plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'df',
+  par(mar = c(4.1, 0, 5.1, 0.5))
+  plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'Median',
        xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE)
   text(x = 1, y = 1:length(sources), pos = 2, offset = 0,
-       labels = formatC(meds, digits = digits, flag = '#', format = 'f'))
+       labels = meds)
   # SDs
   par(mar = c(4.1, 0, 5.1, 1.1))
   plot(NULL, xlim = xlim, ylim = c(length(sds), 1), frame.plot = FALSE,
-       main = 'Posterior Standard Deviation of Effects',
+       main = 'Posterior Superpopulation Standard Deviation',
        xlab = '', ylab = '', yaxt = 'n')
   axis(3)
   for(j in 1:length(sources)){
@@ -744,13 +753,13 @@ anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
                y0 = j, lwd = c(1, 3))
     }
   }
-  points(x = meds, y = 1:length(sources), pch = '|')
+  points(x = med, y = 1:length(sources), pch = '|')
   abline(v = 0)
 }
 
 anova.superpop(od.stan, batches, superpop.sds, dfs, xlim = c(0, 8.5))
 @
-\caption{Visual presentation of an analysis of variance for the Bayesian model.}
+\caption{Visual presentation of an analysis of variance for the Bayesian model. The line segments in the right panel show 50\% and 95\% posterior intervals for the standard deviation of each batch of coefficients.}
 \label{anova}
 \end{figure}
 
