@@ -1,7 +1,6 @@
 *.md
 *.tex
 *.r
-*.pdf
 *.STAN
 *.stan
 *.Rnw
