@@ -651,12 +651,6 @@ Software packages designed to fit Bayesian models can streamline the process of 
 
 For this analysis, the software package STAN was used (our implementation appears in the appendix).  STAN implements the Hamiltonian Monte Carlo (HMC) method, which often has a large performance advantage over other MCMC variants.  STAN also translates its models to C++ code, which it then compiles -- the results of this run much faster than would, for example, an implementation of the same code in R.  There are other popular software packages such as BUGS, JAGS and BayesGlm which may be utilized depending on the problem at hand.
 
-\subsection{Written model to STAN models}
-We can take the model written above and transform it into computing lingo for STAN.
-
-\subsection{Other compilers?}
-There is also BUGS, JAGS, and BayesGlm. There is a website to help you choose priors, maybe?
-
 \section{Posterior Inferences}
 
 \subsection{Bayesian ANOVA}
