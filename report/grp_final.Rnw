@@ -44,7 +44,7 @@
 \begin{document}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% title page
-\title{\bf Modeling Options for the Wheat Streak Mosaic Virus Study}
+\title{\bf Modeling Options for the Wheat Streak \\ Mosaic Virus Study}
 \author{K. Flagg}
 \author{B. Fenton}
 \author{D. Anderson}
@@ -100,6 +100,8 @@ require(xtable)
 # library(coda)
 # require(geoR) # for scaled inverse chi squared
 require(dplyr)
+require(gridExtra)
+require(lattice)
 require(rstan)
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
@@ -428,8 +430,6 @@ print(xtable(sumtable,
 
 \begin{figure}[H]
 <<someoutput,echo=FALSE,out.height='0.5\\linewidth',fig.height=5,cache=TRUE,dependson='glmm'>>=
-require(gridExtra)
-require(lattice)
 plot1 <- dotplot(ranef(glm.mod, condVar = TRUE),
                  scales = list(y = list(draw = FALSE)))[[7]]
 plot2 <- dotplot(ranef(glm.mod, condVar = TRUE),
@@ -647,6 +647,8 @@ For this analysis, the software package STAN was used (our implementation appear
 
 Bayesian inferences are made by summarizing the posterior distribution. This can be done with probabilities, intervals, expectations, or any other summaries that are helpful for answering the research questions. With a large number of coefficients, perhaps the most concise way to make inference is to summarize the contribution of each batch to the overall variation of the data. With a Bayesian posterior disribution, it is easy to describe this directly in terms of the variances or standard deviations of parameters, rather than the \(F\)-ratios of the traditional ANOVA table.
 
+\subsection{Bayesian ANOVA}
+
 The posterior distributions of scale parameters can be used to construct an analysis of variance display that is much more straightforward to understand than the ANOVA table that usually accompanies a likelihoodist or frequentist analysis of variance. Figure~\ref{anova} presents a table of posterior summaries as described by Gelman~\cite{anova}. The batches are grouped by level of nesting, and 50\% and 95\% posterior intervals for the standard deviations are displayed.
 
 Comparisons can be made at a glance. There was little overall variation among varieties, but Inoculation and nitrogen application time are the largest contributors to the total variation, with respective posterior median standard deviations of 1.34 and 0.84. A large amount of uncertainty is associated with the coefficients, which is manifested in the wide 95\% posterior interval reaching beyond 8. This is not surprising, since there are only two inoculation coefficients providing information about the variation in that batch.
@@ -756,6 +758,20 @@ anova.superpop(od.stan, batches, superpop.sds, dfs, xlim = c(0, 10))
 @
 \caption{Visual presentation of an analysis of variance for the Bayesian model. The line segments in the right panel show 50\% and 95\% posterior intervals for the standard deviation of each batch of coefficients.}
 \label{anova}
+\end{figure}
+
+\subsection{MCMC Convergence}
+
+Draws from Markov chain Monte Carlo depend on the previous draws, so in order for inferences to be valid we need to know that the chains are sampling from a common distribution. A useful approach to assessing convergence to the posterior distribution is by examining sample path plots of the draws, commonly known as ``traceplots.'' In Figure~\ref{traceplot}, it is apparent in the first 250 draws that the chains were in different areas of the parameters space and had not settled into a common distribution. It was necessary to run the chains longer until agreement between the chains occurred. This was achieved by the final 250 draws. Although the chains occaisionaly jumped to outlying areas of the parameter space, they returned to the common path. There are other convergence diagnostics available as well; see~\cite{bda3} for more details.
+
+\begin{figure}[H]
+<<traceplot,cache=TRUE,dependson='stop_the_errors'>>=
+t1 <- traceplot(od.stan, pars = 'sigma_ni', inc_warmup = TRUE) + xlim(0, 250)
+t2 <- traceplot(od.stan, pars = 'sigma_ni') + xlim(750, 1000)
+grid.arrange(t1, t2, ncol = 1)
+@
+\caption{Top: Traceplot of the first 250 draws from each chain. Bottom: Traceplot of the last 250 draws from each chain.}
+\label{traceplot}
 \end{figure}
 
 \section{Posterior Predictive Check}
