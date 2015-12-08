@@ -102,7 +102,7 @@ options(mc.cores = parallel::detectCores())
 
 
 \section{Introduction}
-Bayesian inference is becoming a popular topic as of late; such is the case for fields like Ecology. However, Bayesian data analysis is rarely utilized in the Consulting Seminar because few clients are familiar with the methodology. We hope to illustrate that, while Bayesian data analysis may be less familiar than its likelihood or frequentist counterparts, it can provide results when other approaches do not. Additionally, it is our goal to provide easy-to-understand implementations of Bayesian inference. This report will implement both a likelihoodist and Bayesian approach in order to compare results.
+Bayesian inference has become widely used in various scientific disciplines in recent decades. However, Bayesian data analysis is rarely utilized in the Consulting Seminar because few clients are familiar with the methodology. We hope to illustrate that, while Bayesian data analysis may be less familiar than its likelihood or frequentist counterparts, it can provide results when other approaches do not. Additionally, it is our goal to provide easy-to-understand implementations of Bayesian inference. This report will implement both a likelihoodist and Bayesian approach in order to compare results.
 
 \section{Objectives}
 Researchers are interested in the effect of the timing of a nitrogen treatment on the rate of Wheat Streak Mosaic Virus infection for several varieties of winter wheat. It is also of interest to see whether the strength of the effect differs between different varieties, or between environments where the virus is present in high levels versus low level. In this report, we will demonstrate the Analysis of Variance to determine which variables and interaction are the most important in explaining variation in infection rate.
@@ -374,35 +374,26 @@ axis(4)
 
 \section{Generalized Linear Mixed Model}
 
-The most common way to analyze data from a split-plot experiment is to use a linear mixed model. In this situation, the response variable is a Binomial count, so a generalized linear mixed model is used. This approach uses nested batches of coefficients to model the structure of the experimental design. These coefficients are considered to be varying members of a population, and so a scale parameter is estimated for each batch. The parameters are estimated by maximizing the likelihood function. The \texttt{glmer} function from the \texttt{lme4} R package will be used.
+The most common way to analyze data from a split-plot experiment is with a linear mixed model. In this situation, the response variable is a Binomial count, so a generalized linear mixed model is used. This approach uses nested batches of coefficients to model the structure of the experimental design. These coefficients are considered to be varying members of a population (commonly called \emph{random effects}), and so a scale parameter is estimated for each batch. The parameters are estimated by maximizing the likelihood function. The \texttt{glmer} function from the R package \texttt{lme4} will be used.
 
 \subsection{Likelihood}
-The likelihood function provides a relative measure of how well a possible value of a parameter \(\theta\) fits with the observed data \(y\), and so it can be used to identify the value of \(\theta\) that is then used as the estimate most consistent with \(y\). The likelihood function takes its form from the probability model for \(y\), denoted \(p(y|\theta)\). However, we discuss likelihoods after the data have been collected so we consider \(y\) to be fixed and we examine how \(p(y|\theta)\) varies as a function of \(\theta\).
+The likelihood function provides a relative measure of how well a possible value of a parameter \(\theta\) fits with the observed data \(y\), and so it can be used to identify the value of \(\theta\) that is then used as the estimate most consistent with \(y\). The likelihood function takes its form from the probability model for \(y\), denoted \(p(y|\theta)\). However, likelihoods are discussed after the data have been collected so we consider \(y\) to be fixed and we examine how \(p(y|\theta)\) varies as a function of \(\theta\).
 
 Since \(p(y|\theta)\) is the probability of observing \(y\) for a given \(\theta\), a \(\theta\) where \(p(y|\theta)\) is large is more consistent with the obeserved data than a \(\theta\) value that makes \(p(y|\theta)\) small. Then a reasonable approach to estimating \(\theta\) is to find the value of \(\theta\) that maximizes \(p(y|\theta)\) for the observed \(y\).
 
-Note that the likelihood function depends on the particular data that were observed. The data \(y'\) could very well have been collected instead of \(y\), and then the likelihood function would be \(p(y'|\theta)\), which might be maximized by a different \(\theta\) value than the \(\theta\) value the maximizes \(p(y|\theta)\). If we consider how this estimate of \(\theta\) will vary between different samples, we can construct a probability distribution.
-
-\subsection{Likelihood Principle}
-The idea behind the likelihoodist approach to making inference stems from the Likelihood Principle. A likelihoodist believes that given a statistical (probability) model, all of the information in a sample relevant to model parameters is contained in the likelihood function. The benefit to using the maximum likelihood estimate (MLE) is that, assuming the model is correct, the sample size is large enough and the sampling method is unbiased, then  the MLEs are unbiased, the standard deviations of the sampling distributions of the estimators are easy to formulate, the estimators have relatively high precision, and the shapes of the sampling distribution are approximately normal (The Statistical Sleuth, page 611).
+Note that the likelihood function depends on the particular data that were observed. The data \(y'\) could very well have been collected instead of \(y\), and then the likelihood function would be \(p(y'|\theta)\), which might be maximized by a different \(\theta\) value than the \(\theta\) value the maximizes \(p(y|\theta)\). If we consider how this maximum likelihood estimator (MLE) of \(\theta\) will vary between different samples, we can construct a probability distribution. For large samples, MLEs are unbiased and follow Normal distributions that are well-behaved and have small standard errors. Additionally, the use of MLEs is philosophically supported by the Likelihood Principle, which states that all of the information in a sample relevant to estimating the model parameters is contained in the likelihood function.
 
 \subsection{Fitting the Model in GLMER}
 
-As nitrogen and inoculation were pre-assigned to plots, they are treated as constants (in other words, fixed effects).  Block and variety levels can be considered as members of a larger population, and as a result will be treated as a varying, or random, effect.
+Model~(\ref{model}) will be adapted to be fit with \texttt{glmer}. Since specific levels of nitrogen and inoculation were pre-assigned to plots, they are treated as constant (typically known as \emph{fixed effects}). Standard deviations will not be estimated for the blocks associated with these variables. On the other hand, block and variety levels can be considered as members of a larger population. As a result they will be treated as varying and their standard deviations will be estimated. Our R code to run \texttt{glmer} appears in the appendix.
 
-<<glmm, eval=TRUE,cache=TRUE,dependson='data_simulation'>>=
-## The lme4 package has the glmer function.
-require(lme4)
-
-## Fit the model using glm.
+<<glmm,eval=TRUE,cache=TRUE,dependson='data_simulation'>>=
+## Fit the model using glmer.
 glm.mod <- glmer(formula = cbind(infected, uninfected) ~ (nit + ino)^2 +
-          (1 | blk/vty) + (1|blk:nit) + (1|blk:ino) + (1|vty:nit) + (1|vty:ino) +
-          (1 | vty:nit:ino) + (1 | blk:nit:ino) + (1 | blk:vty:nit) + (1 | blk:vty:ino),
-          data = od, family = binomial(link = "logit"),
-      control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2000)))
-## Produce summary output for the model.
-# summary(glm.mod)
-# anova(glm.mod, test="Chisq")
+                   (1|blk/vty) + (1|blk:nit) + (1|blk:ino) + (1|vty:nit) + (1|vty:ino) +
+                   (1|vty:nit:ino) + (1|blk:nit:ino) + (1|blk:vty:nit) + (1|blk:vty:ino),
+                 data = od, family = binomial(link = "logit"),
+                 control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2000)))
 @
 
 \subsection{Results}
