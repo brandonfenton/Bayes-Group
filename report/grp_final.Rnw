@@ -651,15 +651,15 @@ For this analysis, the software package STAN was used (our implementation appear
 
 Bayesian inferences are made by summarizing the posterior distribution. This can be done with probabilities, intervals, expectations, or any other summaries that are helpful for answering the research questions. With a large number of coefficients, perhaps the most concise way to make inference is to summarize the contribution of each batch to the overall variation of the data. With a Bayesian posterior disribution, it is easy to describe this directly in terms of the variances or standard deviations of parameters, rather than the \(F\)-ratios of the traditional ANOVA table.
 
-\subsection{Bayesian ANOVA}
-
 The posterior distributions of scale parameters can be used to construct an analysis of variance display that is much more straightforward to understand than the ANOVA table that usually accompanies a likelihoodist or frequentist analysis of variance. Figure~\ref{anova} presents a table of posterior summaries as described by Gelman~\cite{anova}. The batches are grouped by level of nesting, and 50\% and 95\% posterior intervals for the standard deviations are displayed. Comparisons can be made at a glance. There was little overall variation among varieties, but Inoculation and nitrogen application time are the largest contributors to the total variation, with respective posterior median standard deviations of 1.34 and 0.84. A large amount of uncertainty is associated with the coefficients, which is manifested in the wide 95\% posterior interval reaching beyond 8. This is not surprising, since there are only two inoculation coefficients providing information about the variation in that batch.
 
 There was little variability among varieties (posterior median SD of 0.20), but variety contributed more variation than block (posterior median SD of 0.08).
 
-The inoculation by nitrogen and the inoculation by nitrogen by variety batches, with posterior median standard deviations of 0.31 and 0.30, are the most interesting interaction batches.
+The inoculation by nitrogen and the inoculation by nitrogen by variety batches, with posterior median standard deviations of 0.31 and 0.30, are the most interesting interaction batches. There is evidence that the effects of nitrogen application time are different between inoculated and non-inoculated plots, and that the size of the differences changes from variety to variety.
 
-The motivation for summarizing the standard deviations is that
+The other interaction terms showed much less variation; however, the intervals indicate a good chance that the amount of variation is not 0.
+
+The motivation for summarizing the standard deviations of the coefficients is that these values give direct measurements of how much variation the associated predictors describe on the logit scale. The standard deviations presented here are the scale parameters for the distributions of the effects. These describe the population of all possible blocks, varieties, nitrogen application times, etc, and so they are called the \emph{superpopulation} standard deviations. If the only levels of these variables that are of interest are the specific ones used in this study, it would be more meaningful to examine the posterior distribution of the \emph{finite-population} standard deviations. These can be found by computing the sample standard deviation of each batch in each posterior draw of coefficients.
 
 \begin{figure}[H]
 <<bayes_anova,out.height='0.5\\linewidth',fig.height=4,fig.width=8,cache=TRUE,dependson='stop_the_errors'>>=
@@ -788,7 +788,6 @@ yp.g3 <- round(mean(y.pred > 3), 3)
 
 One major advantage to taking a Bayesian approach to data analysis is the inherent flexibility of Bayesian methods.  Once draws have been obtained from a posterior distribution, those draws can be used to predict new data sets which will hopefully be representative of the population from which the original data were drawn.  If this is true, then the original data should not seem extraordinary in relation to the posterior predictions.  By extension, inferences made based on the predicted values should be close to those made based on the original data.  More specifically, checking inferences about aspects of the data which were not explicitly modeled can indicate whether or not the model performs well.   Such checks, known as posterior predictive checks, should ideally compare measurements which are related to the researchers' objectives.
 
-\subsection{Test Quantities}
 There are two particular features of the original data which are important to capture in the modeling process: the relatively large number of zeros, and the maximum infected count.  A model incorporating either of these features separately would be relatively straightforward to fit, but capturing both simultaneously takes more consideration.  Since the extreme values of the data are of primary concern here, the mean is not a useful metric.  In order to ascertain whether or not the model did in fact capture these aspects of the data, posterior predictive checks for the number of predicted zeros (Figure~\ref{post_pred}, left) and predicted maximum (Figure~\ref{post_pred}, center) were performed.  The relationship between predicted counts and the original counts can be visualized using a scatterplot (Figure~\ref{post_pred}, right).
 
 \begin{figure}[H]
