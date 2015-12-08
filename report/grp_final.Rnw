@@ -844,6 +844,8 @@ One complication that can occur when working with counts is separation. This is 
 
 Figure~\ref{sep} provides a visual illustration of the separation problem. The left panel shows a small probability on the vertical axis and its corresponding logit value on the horizontal axis. The right panel zooms in on the lower left corner. The dotted lines show how a small amount of uncertainty on the probability scale translates to a relatively larger amount of uncertainty on the logit scale.
 
+Proper Bayesian modeling does a better job of handling separation than likelihoodist modeling, since the priors will restrict parameters to reasonable values.  Whether or not this actually occurs hinges on the selection of suitable priors, so again careful thought must go into decisions about which priors to use.
+
 \begin{figure}[h!]
 <<separation,cache=TRUE>>=
 par(mfrow = c(1, 2), mar = c(4, 4, 2, 2))
