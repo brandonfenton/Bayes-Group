@@ -1,9 +1,9 @@
 data{
-	// number of observations, number of levels of each factor, number of
-  // combinations of factors
+  // Number of observations, number of levels of each factor, number of
+  // Combinations of factors
 	int num_obs;
-	int m; //binomial trials
-    real<lower=0> cauchysd; // scale for cauchy priors
+	int m; // Number of Binomial trials
+    real<lower=0> cauchysd; // Scale for cauchy priors
 	int num_b;
 	int num_v;
 	int num_n;
@@ -19,7 +19,7 @@ data{
 	int num_bni;
 	int num_vni;
 
-	// send in data, actual (sort of) levels
+	// Send in data (actually levels)
 	int y[num_obs];
 	int blk[num_obs];
 	int vty[num_obs];
@@ -38,37 +38,37 @@ data{
 }
 
 parameters{
-	real mu; //overall mean
-	vector[num_b] b;
-	vector[num_v] v;
-	vector[num_n] n;
-	vector[num_i] i;
-	vector[num_bv] b_v;
-	vector[num_bn] b_n;
-	vector[num_bi] b_i;
-	vector[num_vn] v_n;
-	vector[num_vi] v_i;
-	vector[num_ni] n_i;
-	vector[num_bvn] b_v_n;
-	vector[num_bvi] b_v_i;
-	vector[num_bni] b_n_i;
-	vector[num_vni] v_n_i;
+  real mu; // Overall mean
+  vector[num_b] b;
+  vector[num_v] v;
+  vector[num_bv] b_v;
+  vector[num_i] i;
+  vector[num_n] n;
+  vector[num_bi] b_i;
+  vector[num_bn] b_n;
+  vector[num_ni] n_i;
+  vector[num_vi] v_i;
+  vector[num_vn] v_n;
+  vector[num_bni] b_n_i;
+  vector[num_bvi] b_v_i;
+  vector[num_bvn] b_v_n;
+  vector[num_vni] v_n_i;
 
-	// standard deviations of the batches
-	real <lower=0> sigma_b;
-  real <lower=0> sigma_v;
-  real <lower=0> sigma_n;
-  real <lower=0> sigma_i;
-  real <lower=0> sigma_bv;
-  real <lower=0> sigma_bn;
-  real <lower=0> sigma_bi;
-  real <lower=0> sigma_vn;
-	real <lower=0> sigma_vi;
-  real <lower=0> sigma_ni;
-  real <lower=0> sigma_bvn;
-  real <lower=0> sigma_bvi;
-	real <lower=0> sigma_bni;
-  real <lower=0> sigma_vni;
+  // Standard deviations of the batches
+  real <lower=0> sigma_b;    // Batch 1
+  real <lower=0> sigma_v;    // Batch 2
+  real <lower=0> sigma_bv;   // Batch 3
+  real <lower=0> sigma_i;    // Batch 4
+  real <lower=0> sigma_n;    // Batch 5
+  real <lower=0> sigma_bi;   // Batch 6
+  real <lower=0> sigma_bn;   // Batch 7
+  real <lower=0> sigma_ni;   // Batch 8
+  real <lower=0> sigma_vi;   // Batch 9
+  real <lower=0> sigma_vn;   // Batch 10
+  real <lower=0> sigma_bni;  // Batch 11
+  real <lower=0> sigma_bvi;  // Batch 12
+  real <lower=0> sigma_bvn;  // Batch 13
+  real <lower=0> sigma_vni;  // Batch 14
 }
 
 transformed parameters{

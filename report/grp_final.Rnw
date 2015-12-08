@@ -79,6 +79,9 @@ options(
   show.signif.stars = FALSE
 )
 
+require(knitr)
+knit_theme$set('print')
+
 ### load in necessary packages
 # require(nlme)
 require(lme4)
@@ -692,6 +695,7 @@ superpop.sds <- c("sigma_b", NA,
                    "sigma_bvn", "sigma_vni")
 dfs <- c(n.b, NA, n.v, n.bv, NA, n.i, n.n, NA, n.bi, n.bn, n.ni,
           n.vi, n.vn, NA, n.bni, n.bvi, n.bvn, n.vni) - 1
+
 anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
                            inner = 0.5, outer = 0.95,
                            width = c(7, 1, 2, 20), digits = 2){
@@ -865,6 +869,12 @@ Another point in favor of the STAN fit is that we could easily add an arbitrary 
 {\footnotesize\verbatiminput{../cauchy.stan}}
 
 \subsection{Running STAN}
+
+\subsection{Bayesian ANOVA Display}
+{\footnotesize
+<<bayes_anova,echo=TRUE,eval=FALSE,cache=TRUE>>=
+@
+}
 
 \begin{thebibliography}{9}
 
