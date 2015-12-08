@@ -14,6 +14,7 @@
 %\usepackage{lastpage} % for page numerbering
 \usepackage{color}
 \usepackage{multirow}
+\usepackage[nottoc,numbib]{tocbibind} % Puts references in TOC
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% margins
@@ -321,7 +322,7 @@ plot(table(y.vec), ylab = "", xlab = "")
 ## Heatmap with meaningful ordering
 
 # Order the dataset, using the arrange function from the dplyr package
-od.ordered <- dplyr::arrange(od, vty, blk, ino, nit)
+od.ordered <- arrange(od, vty, blk, ino, nit)
 
 # Create a matrix of the arranged responses
 infected.arranged <- matrix(od.ordered$infected, ncol = 6, byrow = TRUE)
@@ -390,17 +391,17 @@ Model~(\ref{model}) will be adapted to be fit with \texttt{glmer}. Since specifi
 <<glmm,eval=TRUE,cache=TRUE,dependson='data_simulation'>>=
 ## Fit the model using glmer.
 glm.mod <- glmer(formula = cbind(infected, uninfected) ~ (nit + ino)^2 +
-                   (1|blk/vty) + (1|blk:nit) + (1|blk:ino) + (1|vty:nit) + (1|vty:ino) +
-                   (1|vty:nit:ino) + (1|blk:nit:ino) + (1|blk:vty:nit) + (1|blk:vty:ino),
-                 data = od, family = binomial(link = "logit"),
-                 control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2000)))
+        (1|blk/vty) + (1|blk:nit) + (1|blk:ino) + (1|vty:nit) + (1|vty:ino) +
+        (1|vty:nit:ino) + (1|blk:nit:ino) + (1|blk:vty:nit) + (1|blk:vty:ino),
+      data = od, family = binomial(link = "logit"),
+      control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2000)))
 @
 
 \subsection{Results}
 
-Using the GLMM approach with standard statisitical software yields results that can be confusing and extremely difficult to interpret. Tables~\ref{fixef} and \ref{ranef} show the default output from the \texttt{glmer} object. It is inappropriate to compute an \(F\)-statistic for the Binomial setting as the model does not include a residual error term to provide a denomiator. The reported standard deviations of zero for the varying terms are not believable. Two batches have larger standard deviations. A plot of the varying coefficients within those two batches (Figure~\ref{someoutput}) shows that all confidence intervals include zero. This suggests that there is very little variability, but we would not conclude that all of the coefficients are in fact 0.
+Using the GLMM approach with standard statisitical software yields results that can be confusing and extremely difficult to interpret. Tables~\ref{fixef} and \ref{ranef} show the most relevant parts of the the default output from the \texttt{anova} and \texttt{summary} functions. It is inappropriate to compute an \(F\)-statistic for the Binomial setting as the model does not include a residual error term to provide a denomiator. The reported standard deviations of zero for the varying terms are not believable. Two batches have larger standard deviations; a plot of the varying coefficients within those two batches (Figure~\ref{someoutput}) shows that all confidence intervals include zero. This suggests that there is very little variability, but we would not conclude that all of the coefficients are in fact 0.
 
-The output does provide the information that nitrogen application time, inoculation, the variety by nitrogen timing interaction, and the block by variety by nitrogen timing interaction contribute to the variation in the observed count; however, the presentation is convoluted.
+The output does provide the information that nitrogen application time, inoculation, the variety by nitrogen timing interaction, and the block by variety by nitrogen timing interaction contribute to the variation in the observed number of infected leaves; however, the presentation is convoluted.
 
 <<display_output,cache=TRUE,dependson='glmm'>>=
 anovatab <- anova(glm.mod)
@@ -429,17 +430,17 @@ grid.arrange(plot1, plot2, ncol = 2)
 \label{someoutput}
 \end{figure}
 
-\subsection{Arguments against Likelihood}
+\subsection{Additional Problems with the Maximum Likelihood}
 While the likelihoodist approach can be powerful and elegant in its simplicity, it has some major shortcomings.  Even if the model is correct, two different models can have the same likelihood function (as is the case for binomial and negative binomial distributions).  Similarly, even if the sample is sufficiently large and was collected in such a way that it should be representative, it is still possible to end up with a sample that is not representative of the population.  Either of these flaws could be tempered by including information about prior beliefs or domain-specific knowledge relevant to the model, but the likelihoodist approach does not provide a way to do so.  In some cases this may not matter, but in many others the relevant information which is left unused by the likelihoodist approach can greatly improve both the ability to make inferences and the quality of those inferences.
 
 \section{Bayesian Analysis}
 \subsection{Background}
 \label{bayes_background}
 Probability theory provides the basic property of conditional probability known as Bayes' rule,
-\begin{align*}
-p(\theta|y) & = \frac{p(\theta,y)}{p(y)}
-& = \frac{p(\theta)p(y|\theta)}{p(y)}
-\end{align*}
+\begin{equation*}
+p(\theta|y) = \frac{p(\theta,y)}{p(y)}
+= \frac{p(\theta)p(y|\theta)}{p(y)}
+\end{equation*}
 where $p(y) = \sum_{\theta} p(\theta)p(y|\theta)$ is summed over all possible values of $\theta$. A Bayesian analysis starts from Bayes' rule. It involves finding a posterior distribution for
 \(\theta\), denoted \(p(\theta|y)\), from the likelihood \(p(y|\theta)\)
 and a prior distribution of \(\theta\), \(p(\theta)\). The posterior is
@@ -524,6 +525,9 @@ y <- od$infected
 
 # Load stored Stan draws.
 load('../sens.rdata')
+
+# Get the one Stan fit where we used a scale of 3.
+od.stan <- sens[[3]]
 @
 
 <<stan_unrun, eval=FALSE,cache=TRUE,dependson='stop_the_errors'>>=
@@ -711,7 +715,8 @@ anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
   # SDs
   par(mar = c(4.1, 0, 5.1, 1.1))
   plot(NULL, xlim = xlim, ylim = c(length(sds), 1), frame.plot = FALSE,
-       main = 'Posterior sd of Effects', xlab = '', ylab = '', yaxt = 'n')
+       main = 'Posterior Standard Deviation of Effects',
+       xlab = '', ylab = '', yaxt = 'n')
   axis(3)
   for(j in 1:length(sources)){
     if(!is.na(sources[j])){
@@ -725,7 +730,7 @@ anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
   abline(v = 0)
 }
 
-anova.superpop(od.stan, batches, superpop.sds, dfs, xlim = c(0, 10))
+anova.superpop(od.stan, batches, superpop.sds, dfs, xlim = c(0, 8.5))
 @
 \caption{Visual presentation of an analysis of variance for the Bayesian model.}
 \label{anova}
@@ -734,9 +739,6 @@ anova.superpop(od.stan, batches, superpop.sds, dfs, xlim = c(0, 10))
 \section{Posterior Predictive Check}
 
 <<posterior_prediction_setup,cache=TRUE,dependson='stop_the_errors'>>=
-# Get the one Stan fit where we used a scale of 3.
-od.stan <- sens[[3]]
-
 # Obtain posterior predictions, using probabilities from the model's posterior
 #   distribution.
 p.stan <- extract(od.stan, pars = 'p')$p
@@ -824,6 +826,26 @@ Posterior predictive checks need not only be used to make graphical comparisons.
 
 \section{Conclusion}
 
+\section{Appendix: R and Stan Code}
 
+\subsection{Running GLMER}
+<<glmm,echo=TRUE,eval=FALSE>>=
+@
+
+\subsection{STAN Model Code}
+
+\subsection{Running STAN}
+
+\begin{thebibliography}{9}
+
+\bibitem{anova} Gelman, A. (2005). Analysis of variance--why it is more important than ever. \emph{The Annals of Statistics}, 33(1), 1-53.
+
+\bibitem{bda3} Gelman, A. et. al. (2013). \emph{Bayesian Data Analysis}, 3rd ed. CRC Press.
+
+\bibitem{gelmanhill} Gelman, A., and Hill, J. (2007). \emph{Data Analysis Using Regression and Multilevel/Hierarchical Models}, Cambridge University Press.
+
+\bibitem{sleuth} Ramsey, F. and Schafer, D. (2012). \emph{The Statistical Sleuth: A Course in Methods of Data Analysis}, 3rd ed. Cengage Learning.
+
+\end{thebibliography}
 
 \end{document}
