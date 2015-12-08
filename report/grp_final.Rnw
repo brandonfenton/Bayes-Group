@@ -433,8 +433,8 @@ grid.arrange(plot1, plot2, ncol = 2)
 \label{someoutput}
 \end{figure}
 
-\subsection{Additional Problems with Maximum Likelihood Estimation}
-While the likelihoodist approach can be powerful and elegant in its simplicity, it has some major shortcomings.  Even if the model is correct, two different models can have the same likelihood function (as is the case for binomial and negative binomial distributions).  Similarly, even if the sample is sufficiently large and was collected in such a way that it should be representative, it is still possible to end up with a sample that is not representative of the population.  Either of these flaws could be tempered by including information about prior beliefs or domain-specific knowledge relevant to the model, but the likelihoodist approach does not provide a way to do so.  In some cases this may not matter, but in many others the relevant information which is left unused by the likelihoodist approach can greatly improve both the ability to make inferences and the quality of those inferences.
+\subsection{Additional Issues with Maximum Likelihood Estimation}
+While the strict maximum likelihood approach can be powerful and elegant in its simplicity, it has some major shortcomings.  It is possible for two different study designs with different models to have the same likelihood function, so the likelihood function discards the information about how the data were collected.  Also, even if the sample is sufficiently large and was collected in such a way that it should be representative, it is still possible to end up with a sample that is not representative of the population.  Either of these flaws could be tempered by including information about prior beliefs or domain-specific knowledge relevant to the model, but the likelihoodist approach does not provide a way to do so.  In some cases this may not matter, but in many others the relevant information which is left unused by the likelihood approach can greatly improve both the ability to make inferences and the quality of those inferences.
 
 \section{Bayesian Analysis}
 \subsection{Background}
@@ -645,7 +645,7 @@ sensitivity.plot(sens, params, scales, xmax = xlims, ylab = 'Prior Scale')
 \end{figure}
 
 \subsection{STAN}
-It is possible to fit a Bayesian model by writing the code in a programming language such as R, and for some applications the level of detail and customizeability afforded by this tack is necessary.  However, going this route can be a large undertaking, both in terms of time spent coding and computing resources required.  
+It is possible to fit a Bayesian model by writing the code in a programming language such as R, and for some applications the level of detail and customizeability afforded by this tack is necessary.  However, going this route can be a large undertaking, both in terms of time spent coding and computing resources required.
 
 Software packages designed to fit Bayesian models can streamline the process of specifying a model and obtaining draws from its posterior distribution.  These draws are typically obtained via some form of the Markov Chain Monte Carlo (MCMC) method.  The MCMC method takes draws from a specified targed distribution via one or more Markov Chains.  The precise details of this process are beyond the scope of this report, but it should suffice to say that given enough iterations the MCMC method will converge to its target distribution with mathematical certainty.  MCMC methods are utilized because they are much more computationally efficient than naive sampling methods.
 
