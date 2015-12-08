@@ -15,6 +15,7 @@
 \usepackage{color}
 \usepackage{multirow}
 \usepackage[nottoc,numbib]{tocbibind} % Puts references in TOC
+\usepackage{authblk}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% margins
@@ -43,9 +44,12 @@
 \begin{document}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% title page
-\title{Team BadAss}
-\author{K. Flagg, B. Fenton, \& D. Anderson}
-\date{}
+\title{Modeling Options for Wheat Streak Mosaic Virus Study}
+\author{K. Flagg}
+\author{B. Fenton}
+\author{D. Anderson}
+\affil{BA Consulting, LLP}
+\date{Fall 2015}
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \maketitle
