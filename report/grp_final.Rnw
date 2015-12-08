@@ -471,21 +471,21 @@ one set of observed data.
 \subsection{Advantages to Bayesian Data Analysis}
 There are many advantages to performing a Bayesian analysis. One such advantage is the ability to provide meaningful results even when there are few available observations with which to carry out inferences about a given parameter.  Another is a relative robustness to unusual samples; with carefully-chosen priors a Bayesian analysis can succeed where a likelihoodist approach would utterly fail, especially in situations where the data produce an MLE value at the edge of the parameter space.  For example, if this experiment had been performed on only one plot and no infected leaves were observed, the MLE would lead to the conclusion that on average no leaves would be infected upon replication.  This result would run counter to both common sense and the scientific consensus motivating the experiment in the first place.
 
-Furthermore, a Bayesian analysis will produce a distribution with which inferences can be made about a given parameter.  A likelihoodist approach applied to the same data would only furnish point and variance estimates.  With the availability of posterior distributions comes a more complete picture regarding the parameter itself.  This additional information provides the ability to carry out posterior predictive checks and the like -- *the* DA says no to this sentence.  From the posterior distribution, probabilistic intervals can be obtained that are more natural for discussion.
+Furthermore, a Bayesian analysis will produce a distribution with which inferences can be made about a given parameter.  A likelihoodist approach applied to the same data would only furnish point and variance estimates.  With the availability of posterior distributions comes a more complete picture regarding the parameter itself.  This additional information provides the ability to perform the same calculations that could be performed with other distributions, including computing complicated functions of the parameters that would provide additional insight into the research question(s).  Bayesian posterior intervals also have an interpretation which usually aligns more closely with intuition than the interpretation of classical confidence intervals, since Bayesian posterior intervals are direct statements of probability.
 
-Finally, it can be very difficult in some instances to fit a generalized linear mixed model in R.  While an analogous Bayesian model might require more lines of code to set up, doing so can at times be a more logical and straightforward process.  And once the model has been set up, there is again a much larger set of ways in which it can be used.
+Finally, it can be very difficult in some instances to fit a generalized linear mixed model in R.  While an analogous Bayesian model might require more lines of code to set up, doing so can often be a more logical and straightforward process.  And once the model has been set up, there is again a much larger set of ways in which it can be used.
 
 \subsection{Priors}
 As described in Section~\ref{bayes_background}, the use of Bayesian analysis requires a prior distribution to be chosen for each parameter. Often not much is known about the distribution of each parameter, but to the degree that there is some preexisting knowledge this can guide the choice of prior.  Regardless, it is desirable for the data to have as large an impact on the outcome of the analysis as is reasonable; a well-chosen prior should serve to permit unusual outcomes and prohibit impossible outcomes.
 
-A natural choice for many who implement a Bayesian analysis is to use what is called a noninformative prior. A noninformative prior is "noninformative" in the sense that ideally it should not contain any subjective information about the parameter.  If there is subjective information about the parameter, whether it takes the form of a belief or prior knowledge, an analysis can be improved by including this information in the form of an informative prior.  A compromise between these two extremes is to utilize a weakly informative prior, which will include enough subjective information to constrain posterior distributions to what is reasonable.
+A natural choice for many who implement a Bayesian analysis is to use what is called a noninformative prior. A noninformative prior is "noninformative" in the sense that ideally it should not contain any subjective information about the parameter.  If there is subjective information available about the parameter, whether it takes the form of a belief or prior knowledge, an analysis can be improved by including this information in the form of an informative prior.  A compromise between these two extremes is to utilize a weakly informative prior, which will include enough subjective information to constrain posterior distributions to what is reasonable.
 
 \subsection{The Bayesian Model}
 The model we have gone with is (\ref{model}), yada, yada.
 
 {\it Discuss the priors we chose here or create a subsection?}
 
-The Normal probability distributions for each effect is a natural choice. Each centered at 0 as they will be adjustments on the overall mean. The half cauchy is a solid choice as argued by Gelman et al in a ``Weakly Informative Paper''. The spread of 3 allows for the effects to differ by an effect size of 18, which on the logit scale is enormous, as argued by some page in BDA3.
+The Normal probability distributions for each effect is a natural choice. Each centered at 0 as they will be adjustments on the overall mean. The half cauchy is a solid choice as argued by Gelman et al \cite{weaklyinf}. The spread of 3 allows for the effects to differ by an effect size of 18, which on the logit scale is enormous, as argued by some page in BDA3.
 
 <<stop_the_errors,cache=TRUE>>=
 # Numbers of observations
@@ -650,12 +650,6 @@ It is possible to fit a Bayesian model by writing the code in a programming lang
 Software packages designed to fit Bayesian models can streamline the process of specifying a model and obtaining draws from its posterior distribution.  These draws are typically obtained via some form of the Markov Chain Monte Carlo (MCMC) method.  The MCMC method takes draws from a specified targed distribution via one or more Markov Chains.  The precise details of this process are beyond the scope of this report, but it should suffice to say that given enough iterations the MCMC method will converge to its target distribution with mathematical certainty.  MCMC methods are utilized because they are much more computationally efficient than naive sampling methods.
 
 For this analysis, the software package STAN was used (our implementation appears in the appendix).  STAN implements the Hamiltonian Monte Carlo (HMC) method, which often has a large performance advantage over other MCMC variants.  STAN also translates its models to C++ code, which it then compiles -- the results of this run much faster than would, for example, an implementation of the same code in R.  There are other popular software packages such as BUGS, JAGS and BayesGlm which may be utilized depending on the problem at hand.
-
-\subsection{Written model to STAN models}
-We can take the model written above and transform it into computing lingo for STAN.
-
-\subsection{Other compilers?}
-There is also BUGS, JAGS, and BayesGlm. There is a website to help you choose priors, maybe?
 
 \section{Posterior Inferences}
 
@@ -853,13 +847,13 @@ Posterior predictive checks need not only be used to make graphical comparisons.
 
 \subsection{Data Simulation}
 {\footnotesize % The chunk option doesn't seem to be working...
-<<data_simulation,cache=TRUE,echo=TRUE,eval=FALSE>>=
+<<data_simulation,echo=TRUE,eval=FALSE,cache=TRUE>>=
 @
 }
 
 \subsection{Running GLMER}
 {\footnotesize
-<<glmm,cache=TRUE,echo=TRUE,eval=FALSE>>=
+<<glmm,echo=TRUE,eval=FALSE,cache=TRUE>>=
 @
 }
 
@@ -872,7 +866,9 @@ Posterior predictive checks need not only be used to make graphical comparisons.
 
 \bibitem{anova} Gelman, A. (2005). Analysis of variance--why it is more important than ever. \emph{The Annals of Statistics}, 33(1), 1-53.
 
-\bibitem{bda3} Gelman, A. et. al. (2013). \emph{Bayesian Data Analysis}, 3rd ed. CRC Press.
+\bibitem{weaklyinf} Gelman et. al. (2008). A Weakly Informative Default Prior Distribution for Logistic and Other Regression Models, \emph{The Annals of Applied Statistics}, 2(4), 1360-1383.
+
+\bibitem{bda3} Gelman et. al. (2013). \emph{Bayesian Data Analysis}, 3rd ed. CRC Press.
 
 \bibitem{gelmanhill} Gelman, A., and Hill, J. (2007). \emph{Data Analysis Using Regression and Multilevel/Hierarchical Models}, Cambridge University Press.
 
