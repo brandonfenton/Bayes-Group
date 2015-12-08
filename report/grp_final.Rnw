@@ -893,6 +893,52 @@ This reported has demonstrated the analysis of variance in a maximum likelihood 
 {\footnotesize\verbatiminput{../cauchy.stan}}
 
 \subsection{Running STAN}
+{\footnotesize
+<<newstanstuff,echo=TRUE,eval=FALSE>>=
+# List of data to send to Stan from our data (od).
+# The names on the left are the variable names used in the Stan model.
+# The names on the right are the values being sent.
+od.stan.data <- list(num_obs = 180
+                     m = 30,
+                     cauchysd = od$infected,
+                     num_b = 6,
+                     num_v = 5,
+                     num_n = 3,
+                     num_i = 2,
+                     num_bv = 6*5,
+                     num_bn = 6*3,
+                     num_bi = 6*2,
+                     num_vn = 5*3,
+                     num_vi = 5*2,
+                     num_ni = 3*2,
+                     num_bvn = 6*5*3,
+                     num_bvi = 6*5*2,
+                     num_bni = 6*3*2,
+                     num_vni = 5*3*2,
+                     y = od$infected,
+                     blk = as.numeric(od$blk),
+                     vty = as.numeric(od$vty),
+                     nit = as.numeric(od$nit),
+                     ino = as.numeric(od$ino),
+                     bv_int = as.numeric(od$bv.int),
+                     bn_int = as.numeric(d$bn.int),
+                     bi_int = as.numeric(od$bi.int),
+                     vn_int = as.numeric(od$vn.int),
+                     vi_int = as.numeric(od$vi.int),
+                     ni_int = as.numeric(od$ni.int),
+                     bvn_int = as.numeric(od$bvn.int),
+                     bvi_int = as.numeric(od$bvi.int),
+                     bni_int = as.numeric(od$bni.int),
+                     vni_int = as.numeric(od$vni.int))
+
+# Compile the Stan model
+od.cauchy  <- stan_model(file = 'cauchy.stan', model_name = 'cauchyprior')
+
+# Run the sampler with 4 Markov chains for 1000 iterations each
+od.stan <- sampling(od.cauchy, chains = 4, iter = 1000,
+                    data = od.stan.data, sample_file = 'trial')
+@
+}
 
 \subsection{Bayesian ANOVA Display}
 {\footnotesize
