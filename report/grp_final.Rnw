@@ -866,11 +866,11 @@ Posterior predictive checks need not only be used to make graphical comparisons.
 
 \bibitem{anova} Gelman, A. (2005). Analysis of variance--why it is more important than ever. \emph{The Annals of Statistics}, 33(1), 1-53.
 
+\bibitem{gelmanhill} Gelman, A., and Hill, J. (2007). \emph{Data Analysis Using Regression and Multilevel/Hierarchical Models}, Cambridge University Press.
+
 \bibitem{weaklyinf} Gelman et. al. (2008). A Weakly Informative Default Prior Distribution for Logistic and Other Regression Models, \emph{The Annals of Applied Statistics}, 2(4), 1360-1383.
 
 \bibitem{bda3} Gelman et. al. (2013). \emph{Bayesian Data Analysis}, 3rd ed. CRC Press.
-
-\bibitem{gelmanhill} Gelman, A., and Hill, J. (2007). \emph{Data Analysis Using Regression and Multilevel/Hierarchical Models}, Cambridge University Press.
 
 \bibitem{sleuth} Ramsey, F. and Schafer, D. (2012). \emph{The Statistical Sleuth: A Course in Methods of Data Analysis}, 3rd ed. Cengage Learning.
 
