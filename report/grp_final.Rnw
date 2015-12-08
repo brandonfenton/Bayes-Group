@@ -485,7 +485,7 @@ The model we have gone with is (\ref{model}), yada, yada.
 
 {\it Discuss the priors we chose here or create a subsection?}
 
-The Normal probability distributions for each effect is a natural choice. Each centered at 0 as they will be adjustments on the overall mean. The half cauchy is a solid choice as argued by Gelman et al in a ``Weakly Informative Paper''. The spread of 3 allows for the effects to differ by an effect size of 18, which on the logit scale is enormous, as argued by some page in BDA3.
+The Normal probability distributions for each effect is a natural choice. Each centered at 0 as they will be adjustments on the overall mean. The half cauchy is a solid choice as argued by Gelman et al \cite{weaklyinf}. The spread of 3 allows for the effects to differ by an effect size of 18, which on the logit scale is enormous, as argued by some page in BDA3.
 
 <<stop_the_errors,cache=TRUE>>=
 # Numbers of observations
@@ -827,13 +827,13 @@ Posterior predictive checks need not only be used to make graphical comparisons.
 
 \subsection{Data Simulation}
 {\footnotesize % The chunk option doesn't seem to be working...
-<<data_simulation,echo=TRUE,eval=FALSE>>=
+<<data_simulation,echo=TRUE,eval=FALSE,cache=TRUE>>=
 @
 }
 
 \subsection{Running GLMER}
 {\footnotesize
-<<glmm,echo=TRUE,eval=FALSE>>=
+<<glmm,echo=TRUE,eval=FALSE,cache=TRUE>>=
 @
 }
 
@@ -851,6 +851,8 @@ Posterior predictive checks need not only be used to make graphical comparisons.
 \bibitem{gelmanhill} Gelman, A., and Hill, J. (2007). \emph{Data Analysis Using Regression and Multilevel/Hierarchical Models}, Cambridge University Press.
 
 \bibitem{sleuth} Ramsey, F. and Schafer, D. (2012). \emph{The Statistical Sleuth: A Course in Methods of Data Analysis}, 3rd ed. Cengage Learning.
+
+\bibitem{weaklyinf} Gelman et. al. (2008). A Weakly Informative Default Prior Distribution for Logistic and Other Regression Models, \emph{The Annals of Applied Statistics}, 2(4), 1360-1383.
 
 \end{thebibliography}
 
