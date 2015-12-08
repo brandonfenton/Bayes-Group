@@ -645,7 +645,7 @@ sensitivity.plot(sens, params, scales, xmax = xlims, ylab = 'Prior Scale')
 \end{figure}
 
 \subsection{STAN}
-It is possible to fit a Bayesian model by writing the code in a programming language such as R, and for some applications the level of detail and customizeability afforded by this tack is necessary.  However, going this route can be a large undertaking, both in terms of time spent coding and computing resources required.  
+It is possible to fit a Bayesian model by writing the code in a programming language such as R, and for some applications the level of detail and customizeability afforded by this tack is necessary.  However, going this route can be a large undertaking, both in terms of time spent coding and computing resources required.
 
 Software packages designed to fit Bayesian models can streamline the process of specifying a model and obtaining draws from its posterior distribution.  These draws are typically obtained via some form of the Markov Chain Monte Carlo (MCMC) method.  The MCMC method takes draws from a specified targed distribution via one or more Markov Chains.  The precise details of this process are beyond the scope of this report, but it should suffice to say that given enough iterations the MCMC method will converge to its target distribution with mathematical certainty.  MCMC methods are utilized because they are much more computationally efficient than naive sampling methods.
 
