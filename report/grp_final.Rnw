@@ -659,7 +659,11 @@ There is also BUGS, JAGS, and BayesGlm. There is a website to help you choose pr
 
 \section{Posterior Inferences}
 
+Bayesian inferences are made by summarizing the posterior distribution. This can be done with probabilities, intervals, expectations, or any other summaries that are helpful for answering the research questions.
+
 \subsection{Bayesian ANOVA}
+
+The posterior distributions of scale parameters can be used to construct an analysis of variance display that is much more straightforward to understand than the ANOVA table that usually accompanies a likelihoodist or frequentist analysis of variance. Figure~\ref{anova} presents a table of posterior summaries as recommended in~\cite{anova}.
 
 \begin{figure}[H]
 <<bayes_anova,out.height='0.5\\linewidth',fig.height=4,fig.width=8,cache=TRUE,dependson='stop_the_errors'>>=
@@ -694,17 +698,28 @@ dfs <- c(n.b, NA, n.v, n.bv, NA, n.i, n.n, NA, n.bi, n.bn, n.ni,
           n.vi, n.vn, NA, n.bni, n.bvi, n.bvn, n.vni) - 1
 anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
                            inner = 0.5, outer = 0.95,
-                           width = c(7, 1, 22)){
+                           width = c(7, 1, 2, 20), digits = 2){
 # Creates a caterpillar plot comparing posterior intervals for each of
 # several parameters for several values of one hyperparameter.
-#  stan.fit  A stan_fit objects
+#  stan.fit  A stan_fit object
 #  sources   Character vector of batches being analyzed
 #  sds       Character vector of the scale parameters being analyzed
 #  dfs       Numeric vector of degrees of freedom for each batch
 #  inner     Confidence lever for outer interval
 #  outer     Confidence level for outer interval
 #  width     Numeric vector of widths to send to layout()
-  layout(matrix(1:3, nrow = 1), width = width)
+#  digits    Number of decimal places to print medians to
+  meds <- numeric(length(sources))
+  for(j in 1:length(sources)){
+    if(!is.na(sources[j])){
+      current <- unlist(extract(stan.fit, pars = sds[j]))
+      meds[j] <- median(current)
+    }
+    else{
+      meds[j] <- NA
+    }
+  }
+  layout(matrix(1:4, nrow = 1), width = width)
   # Sources
   par(mar = c(4.1, 1.1, 5.1, 1.1))
   plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'Source',
@@ -715,6 +730,12 @@ anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
   plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'df',
        xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE)
   text(x = 1, y = 1:length(sources), labels = dfs, pos = 2, offset = 0)
+  # Medians
+  par(mar = c(4.1, 0, 5.1, 0))
+  plot(NULL, xlim = c(0, 1), ylim = c(length(sources), 1), main = 'df',
+       xlab = '', ylab = '', xaxt = 'n', yaxt = 'n', frame.plot = FALSE)
+  text(x = 1, y = 1:length(sources), pos = 2, offset = 0,
+       labels = formatC(meds, digits = digits, flag = '#', format = 'f'))
   # SDs
   par(mar = c(4.1, 0, 5.1, 1.1))
   plot(NULL, xlim = xlim, ylim = c(length(sds), 1), frame.plot = FALSE,
@@ -727,9 +748,9 @@ anova.superpop <- function(stan.fit, sources, sds, dfs, xlim = c(0, 1),
       segments(x0 = quantile(current, c((1-outer)/2, (1-inner)/2)),
                x1 = quantile(current, 1-c((1-outer)/2, (1-inner)/2)),
                y0 = j, lwd = c(1, 3))
-      points(x = median(current), y = j, pch = '|')
     }
   }
+  points(x = meds, y = 1:length(sources), pch = '|')
   abline(v = 0)
 }
 
@@ -766,7 +787,6 @@ y.g3 <- round(mean(y > 3), 3)
 yp.g3 <- round(mean(y.pred > 3), 3)
 @
 
-\subsection{Overview}
 One major advantage to taking a Bayesian approach to data analysis is the inherent flexibility of Bayesian methods.  Once draws have been obtained from a posterior distribution, those draws can be used to predict new data sets which will hopefully be representative of the population from which the original data were drawn.  If this is true, then the original data should not seem extraordinary in relation to the posterior predictions.  By extension, inferences made based on the predicted values should be close to those made based on the original data.  More specifically, checking inferences about aspects of the data which were not explicitly modeled can indicate whether or not the model performs well.   Such checks, known as posterior predictive checks, should ideally compare measurements which are related to the researchers' objectives.
 
 \subsection{Test Quantities}
@@ -833,13 +853,13 @@ Posterior predictive checks need not only be used to make graphical comparisons.
 
 \subsection{Data Simulation}
 {\footnotesize % The chunk option doesn't seem to be working...
-<<data_simulation,echo=TRUE,eval=FALSE>>=
+<<data_simulation,cache=TRUE,echo=TRUE,eval=FALSE>>=
 @
 }
 
 \subsection{Running GLMER}
 {\footnotesize
-<<glmm,echo=TRUE,eval=FALSE>>=
+<<glmm,cache=TRUE,echo=TRUE,eval=FALSE>>=
 @
 }
 
