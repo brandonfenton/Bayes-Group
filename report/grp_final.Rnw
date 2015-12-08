@@ -142,12 +142,12 @@ for(i in 1:30){
 }
 
 
-
 #### Start the process of simulating data.
 ## For the binomial setting we have
 ##    y ~ Bin(30,pi) where
 ##    logit(pi) = Xb and
 ##    X is the model matrix and b is a vector of coefficients
+
 
 # Determine a value of mu to be used for the intercept (first row of b vector).
 #   We found that logit(0.05) is approximately -3.
@@ -167,6 +167,7 @@ v.eff <- rnorm(5,0,0.3)
 n.eff <- sort(rnorm(3,0,0.4))
 # There are two inoculation levels.
 i.eff <- c(-0.5,0.5)
+
 
 ## We can do the same for all the two-way interactions.
 ##   These are more rows of the b vector.
@@ -197,7 +198,6 @@ vni.eff <- rnorm(30,0,0.001)
 ## It was not of interest to include a four-way interaction.
 
 
-
 #### We can now update our "design" matrix with the levels of each
 ####   interaction.
 # head(design) # reminder of the layout of design
@@ -213,6 +213,7 @@ bvn.int <- as.numeric(interaction(design[,1],design[,4],design[,6]))
 bvi.int <- as.numeric(interaction(design[,4],design[,6]))
 bni.int <- as.numeric(interaction(design[,4],design[,5]))
 vni.int <- as.numeric(interaction(design[,6],design[,5]))
+
 
 ## Once the levels have been established for each interaction (of
 ##   each plot) we can include them as columns in our data set.
@@ -234,6 +235,7 @@ od <- data.frame(
   "vni.int" = factor(vni.int)
 )
 
+
 ## Using the levels of each factor for a plot, we can find the probabilities
 ##   associated with the simulated data.
 # We can start on the logit scale: logit(pi) = Xb.
@@ -249,6 +251,7 @@ pi.vec <- apply(cbind(logit.pi.vec), 1, expit) # pi = expit(X * beta)
 #   be the counts of infected leaves for a given plot.
 set.seed(324)
 y.vec <- apply(cbind(pi.vec), 1, function(p) rbinom(1,30,p))
+
 
 ## Lastly, we can attach the counts of infected leaves and uninfected leaves
 ##   for each plot to our data set.
@@ -391,10 +394,10 @@ Model~(\ref{model}) will be adapted to be fit with \texttt{glmer}. Since specifi
 <<glmm,eval=TRUE,cache=TRUE,dependson='data_simulation'>>=
 ## Fit the model using glmer.
 glm.mod <- glmer(formula = cbind(infected, uninfected) ~ (nit + ino)^2 +
-        (1|blk/vty) + (1|blk:nit) + (1|blk:ino) + (1|vty:nit) + (1|vty:ino) +
-        (1|vty:nit:ino) + (1|blk:nit:ino) + (1|blk:vty:nit) + (1|blk:vty:ino),
-      data = od, family = binomial(link = "logit"),
-      control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2000)))
+                   (1|blk/vty) + (1|blk:nit) + (1|blk:ino) + (1|vty:nit) + (1|vty:ino) +
+                   (1|vty:nit:ino) + (1|blk:nit:ino) + (1|blk:vty:nit) + (1|blk:vty:ino),
+                 data = od, family = binomial(link = "logit"),
+                 control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 2000)))
 @
 
 \subsection{Results}
@@ -430,7 +433,7 @@ grid.arrange(plot1, plot2, ncol = 2)
 \label{someoutput}
 \end{figure}
 
-\subsection{Additional Problems with the Maximum Likelihood}
+\subsection{Additional Problems with Maximum Likelihood Estimation}
 While the likelihoodist approach can be powerful and elegant in its simplicity, it has some major shortcomings.  Even if the model is correct, two different models can have the same likelihood function (as is the case for binomial and negative binomial distributions).  Similarly, even if the sample is sufficiently large and was collected in such a way that it should be representative, it is still possible to end up with a sample that is not representative of the population.  Either of these flaws could be tempered by including information about prior beliefs or domain-specific knowledge relevant to the model, but the likelihoodist approach does not provide a way to do so.  In some cases this may not matter, but in many others the relevant information which is left unused by the likelihoodist approach can greatly improve both the ability to make inferences and the quality of those inferences.
 
 \section{Bayesian Analysis}
@@ -624,7 +627,7 @@ sensitivity.plot <- function(stan.list, pars, vals, xmin = 0, xmax = 1,
       segments(x0 = quantile(current, c((1-outer)/2, (1-inner)/2)),
                x1 = quantile(current, 1-c((1-outer)/2, (1-inner)/2)),
                y0 = i, lwd = c(1, 3))
-      points(x = median(current), y = i, pch = 20)
+      points(x = median(current), y = i, pch = '|')
     }
   }
 }
@@ -828,11 +831,20 @@ Posterior predictive checks need not only be used to make graphical comparisons.
 
 \section{Appendix: R and Stan Code}
 
+\subsection{Data Simulation}
+{\footnotesize % The chunk option doesn't seem to be working...
+<<data_simulation,echo=TRUE,eval=FALSE>>=
+@
+}
+
 \subsection{Running GLMER}
+{\footnotesize
 <<glmm,echo=TRUE,eval=FALSE>>=
 @
+}
 
 \subsection{STAN Model Code}
+{\footnotesize\verbatiminput{../cauchy.stan}}
 
 \subsection{Running STAN}
 
