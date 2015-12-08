@@ -387,7 +387,7 @@ axis(4)
 
 The most common way to analyze data from a split-plot experiment is with a linear mixed model. In this situation, the response variable is a Binomial count, so a generalized linear mixed model is used. This approach uses nested batches of coefficients to model the structure of the experimental design. These coefficients are considered to be varying members of a population (commonly called \emph{random effects}), and so a scale parameter is estimated for each batch. The parameters are estimated by maximizing the likelihood function. The \texttt{glmer} function from the R package \texttt{lme4} will be used.
 
-\subsection{Likelihood}
+\subsection{Background}
 The likelihood function provides a relative measure of how well a possible value of a parameter \(\theta\) fits with the observed data \(y\), and so it can be used to identify the value of \(\theta\) that is then used as the estimate most consistent with \(y\). The likelihood function takes its form from the probability model for \(y\), denoted \(p(y|\theta)\). However, likelihoods are discussed after the data have been collected so we consider \(y\) to be fixed and we examine how \(p(y|\theta)\) varies as a function of \(\theta\).
 
 Since \(p(y|\theta)\) is the probability of observing \(y\) for a given \(\theta\), a \(\theta\) where \(p(y|\theta)\) is large is more consistent with the obeserved data than a \(\theta\) value that makes \(p(y|\theta)\) small. Then a reasonable approach to estimating \(\theta\) is to find the value of \(\theta\) that maximizes \(p(y|\theta)\) for the observed \(y\).
@@ -444,6 +444,9 @@ grid.arrange(plot1, plot2, ncol = 2)
 While the strict maximum likelihood approach can be powerful and elegant in its simplicity, it has some major shortcomings.  It is possible for two different study designs with different models to have the same likelihood function, so the likelihood function discards the information about how the data were collected.  Also, even if the sample is sufficiently large and was collected in such a way that it should be representative, it is still possible to end up with a sample that is not representative of the population.  Either of these flaws could be tempered by including information about prior beliefs or domain-specific knowledge relevant to the model, but the likelihoodist approach does not provide a way to do so.  In some cases this may not matter, but in many others the relevant information which is left unused by the likelihood approach can greatly improve both the ability to make inferences and the quality of those inferences.
 
 \section{Bayesian Analysis}
+
+A Bayesian model incorporates a prior distribution that describes existing knowledge or beliefs about the parameters. The prior distribution contributes additional information not contained in the likelihood. This information is then conditioned upon the likelihood, and the knowledge about the parameters is updated into a posterior distribution.
+
 \subsection{Background}
 \label{bayes_background}
 Probability theory provides the basic property of conditional probability known as Bayes' rule,
