@@ -646,7 +646,7 @@ xlims <- c(1, 1, 8, 20, 1, 1, 1, 1, 1, 3, 1, 1, 1, 5)
 par(mfrow = c(5, 3), mar = c(4.1, 3.1, 3.1, 1.1))
 sensitivity.plot(sens, params, scales, xmax = xlims, ylab = 'Prior Scale')
 @
-\caption{TODO}
+\caption{95\% and 50\% posterior intervals resulting from prior distributions with various scale parameters.}
 \label{sens_plot}
 \end{figure}
 
@@ -830,7 +830,7 @@ for(i in sample(nrow(y.pred), 100, replace = FALSE)){
 abline(a=0, b=1, col=rgb(1, 0, 0), lwd = 3, lty = "dashed")
 par(mfrow=c(1,1))
 @
-\caption{TODO}
+\caption{Plots of posterior predictive quantities.}
 \label{post_pred}
 \end{figure}
 
@@ -873,7 +873,7 @@ segments(x0 = log(1/119), y0 = 0, y1 = 1/120, lty = 3, lwd = 1)
 The problem gets worse if the infected count is 0. In that case, the best estimate of the infection probability is 0, and \(\mathrm{logit}(0)=-\infty\). This will cause computational problems because the software will try to improve the model fit by decreasing the effect estimate toward \(-\infty\). The software may fail to find a solution, and if it does report a solution, the standard error will be large because the solution cannot be found precisely.
 
 \section{Conclusion}
-This reported has demonstrated the analysis of variance in a maximum likelihood setting and in a Bayesian setting.  Hopefully the advantages a Bayesian model has over its maximum likelihood counterpart are clear: the Bayesian model can include subjective information about parameters and is easy to interpret after it has been fit.  We also hope the implementation is comprehensible enough that it can be used as a starting point for further exploration of Bayesian Statistics.  
+This reported has demonstrated the analysis of variance in a maximum likelihood setting and in a Bayesian setting.  Hopefully the advantages a Bayesian model has over its maximum likelihood counterpart are clear: the Bayesian model can include subjective information about parameters and is easy to interpret after it has been fit.  We also hope the implementation is comprehensible enough that it can be used as a starting point for further exploration of Bayesian Statistics.
 
 \section{Appendix: R and Stan Code}
 
